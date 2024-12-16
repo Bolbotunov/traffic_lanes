@@ -42,7 +42,7 @@ class Road {
     let route = document.createElementNS("http://www.w3.org/2000/svg", "path");
     route.setAttribute('id', id);
     route.setAttribute('d', pathCoordinates);
-    route.setAttribute('stroke', stroke);
+    // route.setAttribute('stroke', stroke);
     route.setAttribute('fill', 'transparent');
     fieldSVG.appendChild(route);
     let pathLength = route.getTotalLength();
@@ -72,12 +72,6 @@ class Road {
   }
 }
 
-
-// if (window.innerHeight < 900) {
-//   sizeFieldH = 400
-//   sizeFieldW = 550
-// console.log(window.innerWidth)
-// }
 let fieldSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 fieldSVG.style.backgroundColor = '#8fe577';
 fieldSVG.setAttribute('width', `${sizeFieldW}`);
@@ -108,7 +102,6 @@ function createMap() {
   n = 3
   for (let i = 0; i < n; i++) {
     offsetX = 511
-   
     const roadPart = new Road(fieldSVG, offsetX, offsetY, 90);
     roadPart.draw();
     offsetY += 100;
@@ -128,20 +121,25 @@ const roadPath = new Road(fieldSVG); // создание пути для авт�
 roadPath.createPath('route3', 'M0 410 L 870 410', 'black');
 roadPath.createPath('route2', 'M870 385 L 0 385', 'grey');
 roadPath.createPath('route1', 'M0 410 L 340 410 C 440 410, 420 440, 424 480 L 424 740', 'blue');
+roadPath.createPath('route5', 'M425 0 L 425 810', 'red');
+roadPath.createPath('route4', 'M445 810 L 445 0', 'black');
+roadPath.createPath('route6', 'M450 760 L 455 470 C 450 420, 460 390, 360 390 L 0 385', 'green');
 let elapsedTime = 0;
 let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
 let waitingTime = 5
 let newWaitingTime = 0
-let timeOfCrazyRide = 1
+let timeOfCrazyRide = 2
 let gameInterval;
 let cars = []; // Массив для хранения всех созданных машинок
 let trafficLightsOn = true; // Состояние светофора
 
 class Auto {
-  constructor(route, duration, typeCar, speed, R) {
+  constructor(route, coordY, duration, typeCar, speed, R, carsArr) {
+    this.carsArr = []
     this.R = R
+    this.coordY = coordY
     this.route = route;
     this.duration = duration;
     this.typeCar = typeCar;
@@ -158,7 +156,7 @@ class Auto {
     auto.setAttribute('href', this.typeCar);
     auto.setAttribute('width', '35');
     auto.setAttribute('x', '-25');
-    auto.setAttribute('y', '0');
+    auto.setAttribute('y', this.coordY);
     auto.setAttribute('height', '35');
     auto.setAttribute('transform', 'translate(0, -18)');
     auto.setAttribute('id', this.route);
@@ -171,21 +169,23 @@ class Auto {
     const pathInfo = pathsLengths[this.route];
     let index = cars.indexOf(this);
     let safeDistance = 45;
-    console.log(this.position)
     // поворот на 376
     // if(this.position > 390 ) {
     //   this.rotateCar = 90
     // }
-    if (!trafficLightsOn && this.speed === 0 && elapsedTime - elapsedTimeTraffic >= waitingTime && newWaitingTime < timeOfCrazyRide) {
+
+    if (!trafficLightsOn && elapsedTime - elapsedTimeTraffic >= waitingTime &&  newWaitingTime < timeOfCrazyRide) {
       newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime
       this.speed = this.originalSpeed
-    } else if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
+    }
+    
+    if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
       elapsedTimeTraffic = elapsedTime
       newWaitingTime = 0
       this.speed = 0
     }
-    
-    if (!trafficLightsOn && this.position >= 430 && this.position < 450 && elapsedTime - elapsedTimeTraffic < waitingTime) {
+
+    if (!trafficLightsOn && this.position >= 280 && this.position < 310 && elapsedTime - elapsedTimeTraffic < waitingTime) {
       this.speed = 0;
     } else {
       if (index > 0) {
@@ -220,39 +220,105 @@ class Auto {
   }
 }
 // ===================Светофор==================================
-let div = document.createElement('div');
-gameField.appendChild(div);
-div.classList.add('lights');
 
-let trafficLights = document.querySelector('.lights');
-trafficLights.style.position = 'absolute';
-trafficLights.style.width = '20px';
-trafficLights.style.height = '20px';
-trafficLights.style.backgroundColor = 'green';
-trafficLights.style.borderRadius = '50%';
-trafficLights.style.top = '77px';
-trafficLights.style.left = '450px';
 
-trafficLights.addEventListener('click', function() {
-
-  if (trafficLightsOn) {
-    trafficLights.style.backgroundColor = 'red';
-    trafficLightsOn = false;
-    elapsedTimeTraffic = elapsedTime
-    cars.forEach(item => {
-      if (item.position >= 430 && item.position < 450) {
-        item.speed = 0;
-      }
-    });
-  } else {
-    trafficLights.style.backgroundColor = 'green';
-    trafficLightsOn = true;
-    console.log('greenOn');
-    cars.forEach(item => {
-      item.speed = item.originalSpeed; // Возвращаем оригинальную скорость машинкам
-    });
+class TrafficLights {
+  constructor(id) {
+    this.id = id
+    this.colorTrafficLights = '#24AB12'
   }
-});
+  createTrafficLights(coordinatesX, coordinatesY) {
+    let trafficLightsSVG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    trafficLightsSVG.setAttribute('transform', `translate(${coordinatesX}, ${coordinatesY})`);
+    trafficLightsSVG.setAttribute('id', `${this.id}`);
+
+    let colorTrafficLights = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    colorTrafficLights.setAttribute("d", "M24.5 12.5C24.5 19.1274 19.1274 24.5 12.5 24.5C5.87258 24.5 0.5 19.1274 0.5 12.5C0.5 5.87258 5.87258 0.5 12.5 0.5C19.1274 0.5 24.5 5.87258 24.5 12.5Z");
+    colorTrafficLights.setAttribute("fill", "#24AB12");
+    colorTrafficLights.setAttribute("stroke", this.colorTrafficLights);
+
+    let icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("width", "20");
+    icon.setAttribute("height", "20");
+    icon.setAttribute("viewBox", "0 0 25 25");
+    icon.setAttribute("fill", "none");
+    icon.appendChild(colorTrafficLights);
+    trafficLightsSVG.appendChild(icon);
+    fieldSVG.appendChild(trafficLightsSVG);
+    return colorTrafficLights
+  }
+}
+
+let TL1 = new TrafficLights('first').createTrafficLights('370', '398')
+let TL2 = new TrafficLights('second').createTrafficLights('485', '372')
+
+let trafficLightsArray = [TL1, TL2]
+console.log(trafficLightsArray)
+
+trafficLightsArray.forEach((item) => {
+  item.addEventListener('click', function(e) {
+    if (trafficLightsOn) {
+      trafficLightsOn = false;
+      item.setAttribute('fill', 'red')
+      elapsedTimeTraffic = elapsedTime
+      cars.forEach(item => {
+        if (item.position >= 280 && item.position < 310) {
+          console.log(item.position)
+          item.speed = 0;
+        }
+      });
+    } else {
+      item.setAttribute('fill', '#24AB12')
+      trafficLightsOn = true;
+      cars.forEach(item => {
+        item.speed = item.originalSpeed;
+      });
+    }
+  })
+})
+
+
+// TL1.addEventListener('click' , function() {
+//   if (trafficLightsOn) {
+//     trafficLightsOn = false;
+//     TL1.setAttribute('fill', 'red')
+//     elapsedTimeTraffic = elapsedTime
+//     cars.forEach(item => {
+//       if (item.position >= 280 && item.position < 310) {
+//         console.log(item.position)
+//         item.speed = 0;
+//       }
+//     });
+//   } else {
+//     TL1.setAttribute('fill', '#24AB12')
+//     trafficLightsOn = true;
+//     cars.forEach(item => {
+//       item.speed = item.originalSpeed;
+//     });
+//   }
+// })
+
+
+// trafficLights.addEventListener('click', function() {
+//   if (trafficLightsOn) {
+//     trafficLightsOn = false;
+
+//     trafficLights.style.backgroundColor = 'red';
+//     elapsedTimeTraffic = elapsedTime
+//     cars.forEach(item => {
+//       if (item.position >= 430 && item.position < 450) {
+//         item.speed = 0;
+//       }
+//     });
+//   } else {
+//     trafficLights.style.backgroundColor = 'green';
+//     trafficLightsOn = true;
+//     console.log('greenOn');
+//     cars.forEach(item => {
+//       item.speed = item.originalSpeed; // Возвращаем оригинальную скорость машинкам
+//     });
+//   }
+// });
 
 function startGame() {
   if (!gameInterval) {
@@ -265,12 +331,61 @@ function gameTimer() {
   const carsImg = 3;
   cars.forEach(car => car.move());
 
-  if (elapsedTime - checkTime >= 2) {
+  if (elapsedTime - checkTime >= 1) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
-    let newAuto = new Auto('#route1', '5s', `assets/car${randomImg}.png`, 3, 0).createAuto();
+    let randomRoute = Math.floor(Math.random() * 6) + 1;
+    let coordY
+    if(randomRoute % 2 === 0) {
+      coordY = '-35'
+    } else {
+    coordY = '0'
+    }
+    let newAuto = new Auto(`#route${randomRoute}`, `${coordY}`, '1s', `assets/car${randomImg}.png`, 3, 0).createAuto();
     // let newAuto2 = new Auto('#route2', '5s', `assets/car${randomImg}.png`, 3, 180).createAuto();
     cars.push(newAuto); // Добавляем новую машинку в массив
     // cars.push(newAuto2); // Добавляем новую машинку в массив
     checkTime = elapsedTime;
   }
 }
+
+
+
+
+
+
+
+
+// let TL1 = new TrafficLights('first').createTrafficLights('340', '400', [90, 357.5, 407.5], [10,0], 'clip1')
+// let TL2 = new TrafficLights('second').createTrafficLights('510', '375', [90, 0, 0], [10,0], 'clip2')
+
+
+    // const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+    // clipPath.setAttribute('id', `${clipId}`);
+
+    // const viewArea = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    // viewArea.setAttribute('width', '18');
+    // viewArea.setAttribute('height', '16');
+    // viewArea.setAttribute('x', `${viewAreaX}`);
+    // viewArea.setAttribute('y', `${viewAreaY}`);
+    // viewArea.setAttribute('fill', 'none');
+    // clipPath.appendChild(viewArea);
+
+    // const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    // defs.appendChild(clipPath);
+    // fieldSVG.appendChild(defs);
+
+    
+    // trafficLightsGroup.setAttribute('clip-path', `url(#${clipId})`);
+
+    // const trafficLightsImg = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    // trafficLightsImg.setAttribute('href', '../assets/trafficLights.png');
+    // trafficLightsImg.setAttribute('id', `${this.id}`);
+    // trafficLightsImg.setAttribute('width', '32');
+    // trafficLightsImg.setAttribute('height', '32');
+    // trafficLightsImg.setAttribute('x', `${viewAreaX}`);
+    // trafficLightsImg.setAttribute('y', `${viewAreaY}`);
+    // trafficLightsImg.setAttribute('transform', `rotate(${rotateImg}) translate(${translateImg})`);
+    // trafficLightsGroup.appendChild(trafficLightsImg);
+
+    // fieldSVG.appendChild(trafficLightsGroup);
+    // return trafficLightsImg
