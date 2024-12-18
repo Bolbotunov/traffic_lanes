@@ -72,12 +72,6 @@ class Road {
   }
 }
 
-
-// if (window.innerHeight < 900) {
-//   sizeFieldH = 400
-//   sizeFieldW = 550
-// console.log(window.innerWidth)
-// }
 let fieldSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 fieldSVG.style.backgroundColor = '#8fe577';
 fieldSVG.setAttribute('width', `${sizeFieldW}`);
@@ -108,7 +102,6 @@ function createMap() {
   n = 3
   for (let i = 0; i < n; i++) {
     offsetX = 511
-   
     const roadPart = new Road(fieldSVG, offsetX, offsetY, 90);
     roadPart.draw();
     offsetY += 100;
@@ -125,30 +118,45 @@ createMap()
 
 
 const roadPath = new Road(fieldSVG); // создание пути для автомобилей
-roadPath.createPath('route3', 'M0 410 L 870 410', 'black');
-roadPath.createPath('route2', 'M870 385 L 0 385', 'grey');
-roadPath.createPath('route1', 'M0 410 L 340 410 C 440 410, 420 440, 424 480 L 424 740', 'blue');
+roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
+roadPath.createPath('route2', 'M0 410 L 340 410 C 440 410, 420 440, 424 480 L 424 740', 'blue');
+// route 3
+
+
+roadPath.createPath('route3', 'M870 385 L 0 385', 'grey');
+// route 5
+// route 6
+
+// roadPath.createPath('route7', 'M425 0 L 425 810', 'red');
+// // route 8
+// // route 9
+
+// roadPath.createPath('route10', 'M445 810 L 445 0', 'black');
+// roadPath.createPath('route11', 'M450 760 L 455 470 C 450 420, 460 390, 360 390 L 0 385', 'green');
+// // route 12
+
+
+
 let elapsedTime = 0;
 let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
 let waitingTime = 5
 let newWaitingTime = 0
-let timeOfCrazyRide = 1
+let timeOfCrazyRide = 2
 let gameInterval;
 let cars = []; // Массив для хранения всех созданных машинок
-let trafficLightsOn = true; // Состояние светофора
 
 class Auto {
-  constructor(route, duration, typeCar, speed, R) {
+  constructor(route, coordY, typeCar, speed, R) {
     this.R = R
+    this.coordY = coordY
     this.route = route;
-    this.duration = duration;
     this.typeCar = typeCar;
     this.animateMotion = null;
     this.rotateCar = 0
     this.speed = speed || 3;
-    this.position = 0; // Изначальная позиция машинки
+    this.position = 0; 
     this.originalSpeed = this.speed;
     this.prevPoint = { x: 0, y: 0 };
   }
@@ -157,10 +165,10 @@ class Auto {
     const auto = document.createElementNS("http://www.w3.org/2000/svg", "image");
     auto.setAttribute('href', this.typeCar);
     auto.setAttribute('width', '35');
-    auto.setAttribute('x', '-25');
-    auto.setAttribute('y', '0');
+    auto.setAttribute('x', '0');
+    auto.setAttribute('y', this.coordY);
     auto.setAttribute('height', '35');
-    auto.setAttribute('transform', 'translate(0, -18)');
+    auto.setAttribute('transform', 'translate(0, 0)');
     auto.setAttribute('id', this.route);
     this.autoElement = auto;
     fieldSVG.appendChild(auto);
@@ -169,90 +177,121 @@ class Auto {
 
   move() {
     const pathInfo = pathsLengths[this.route];
-    let index = cars.indexOf(this);
     let safeDistance = 45;
-    console.log(this.position)
-    // поворот на 376
-    // if(this.position > 390 ) {
-    //   this.rotateCar = 90
-    // }
-    if (!trafficLightsOn && this.speed === 0 && elapsedTime - elapsedTimeTraffic >= waitingTime && newWaitingTime < timeOfCrazyRide) {
-      newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime
-      this.speed = this.originalSpeed
-    } else if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
-      elapsedTimeTraffic = elapsedTime
-      newWaitingTime = 0
-      this.speed = 0
-    }
-    
-    if (!trafficLightsOn && this.position >= 430 && this.position < 450 && elapsedTime - elapsedTimeTraffic < waitingTime) {
-      this.speed = 0;
-    } else {
-      if (index > 0) {
-        let previousCar = cars[index - 1];
-        if (previousCar.position - this.position < safeDistance * 2 && previousCar.position - this.position > safeDistance) {
-          this.speed = 0.9;
-        } else if (previousCar.position - this.position <= safeDistance) {
-          this.speed = 0;
-        } else {
-          this.speed = this.originalSpeed;
-        }
-      } else {
-          this.speed = this.originalSpeed;
-        }
+    let firstCarStop = false;
+    let positionFirstCar;
+    let positionForwardCar;
+  
+    trafficLightsArray.forEach(tl => {
+      if (!tl.trafficLightsOn) {
+        console.log(`выключен ${tl.id}`);
+        cars.forEach((item, index) => {
+          if (tl.routesControl.includes(item.route) && item.position >= tl.stopAreaPosition[0] && item.position <= tl.stopAreaPosition[1]) {
+            item.speed = 0.9;
+            positionFirstCar = item.position;
+          } else if (tl.routesControl.includes(item.route) && item.position > tl.stopAreaPosition[1] && item.position <= tl.stopAreaPosition[2]) {
+            item.speed = 0;
+            positionFirstCar = item.position;
+            firstCarStop = true;
+            positionForwardCar = positionFirstCar;
+          } else if (tl.routesControl.includes(item.route) && firstCarStop) {
+            let previousCar = cars[index];
+            if (tl.routesControl.includes(item.route) && positionFirstCar - previousCar.position < safeDistance * 1.5 && positionFirstCar - previousCar.position >= safeDistance) {
+              previousCar.speed = 0.7;
+              positionFirstCar = previousCar.position;
+            } else if (tl.routesControl.includes(item.route) && positionFirstCar - previousCar.position <= safeDistance) {
+              previousCar.speed = 0;
+              positionFirstCar = previousCar.position;
+            }
+          }
+        });
       }
-
+    });
+  
     if (this.position < pathInfo.length) {
       this.position += this.speed * 0.5;
       const point = pathInfo.element.getPointAtLength(this.position);
-      // this.autoElement.setAttribute('transform', `translate(${point.x}, ${point.y - 18}), rotate(${this.rotateCar})`)
       const nextPoint = pathInfo.element.getPointAtLength(this.position + this.speed * 0.5);
       const dx = nextPoint.x - point.x;
-       const dy = nextPoint.y - point.y;
-        this.rotateCar = Math.atan2(dy, dx) * (180 / Math.PI)
-      // this.prevPoint = point
-      this.autoElement.setAttribute('transform', `translate(${point.x + 18}, ${point.y - 18}), rotate(${this.rotateCar})`)
+      const dy = nextPoint.y - point.y;
+      if (dx !== 0 || dy !== 0) {
+        this.rotateCar = Math.atan2(dy, dx) * (180 / Math.PI);
+      }
+      this.autoElement.setAttribute('transform', `translate(${point.x}, ${point.y}) rotate(${this.rotateCar})`);
     }
+  
     if (this.position >= pathInfo.length) {
       this.autoElement.remove();
-      cars = cars.filter(car => car !== this)
+      cars = cars.filter(car => car !== this);
     }
   }
-}
+}  
 // ===================Светофор==================================
-let div = document.createElement('div');
-gameField.appendChild(div);
-div.classList.add('lights');
+class TrafficLights {
+  constructor(id, routesControl, stopAreaPosition) {
+    this.id = id;
+    this.colorTrafficLights = '#24AB12';
+    this.trafficLightsOn = true;
+    this.routesControl = routesControl;
+    this.stopAreaPosition = stopAreaPosition;
+    this.routeStopped = {}
+  }
 
-let trafficLights = document.querySelector('.lights');
-trafficLights.style.position = 'absolute';
-trafficLights.style.width = '20px';
-trafficLights.style.height = '20px';
-trafficLights.style.backgroundColor = 'green';
-trafficLights.style.borderRadius = '50%';
-trafficLights.style.top = '77px';
-trafficLights.style.left = '450px';
+  createTrafficLights(coordinatesX, coordinatesY) {
+    let trafficLightsSVG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    trafficLightsSVG.setAttribute('transform', `translate(${coordinatesX}, ${coordinatesY})`);
 
-trafficLights.addEventListener('click', function() {
+    let colorTrafficLights = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    colorTrafficLights.setAttribute("d", "M24.5 12.5C24.5 19.1274 19.1274 24.5 12.5 24.5C5.87258 24.5 0.5 19.1274 0.5 12.5C0.5 5.87258 5.87258 0.5 12.5 0.5C19.1274 0.5 24.5 5.87258 24.5 12.5Z");
+    colorTrafficLights.setAttribute("fill", "#24AB12");
+    colorTrafficLights.setAttribute('id', `${this.id}`);
+    colorTrafficLights.setAttribute("stroke", this.colorTrafficLights);
 
-  if (trafficLightsOn) {
-    trafficLights.style.backgroundColor = 'red';
-    trafficLightsOn = false;
-    elapsedTimeTraffic = elapsedTime
-    cars.forEach(item => {
-      if (item.position >= 430 && item.position < 450) {
-        item.speed = 0;
+    let icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("width", "20");
+    icon.setAttribute("height", "20");
+    icon.setAttribute("viewBox", "0 0 25 25");
+    icon.setAttribute("fill", "none");
+    icon.appendChild(colorTrafficLights);
+    trafficLightsSVG.appendChild(icon);
+    
+    fieldSVG.appendChild(trafficLightsSVG);
+
+    colorTrafficLights.addEventListener('click', () => {
+      if (this.trafficLightsOn) {
+        this.trafficLightsOn = false;
+        colorTrafficLights.setAttribute('fill', 'red');
+        elapsedTimeTraffic = elapsedTime;
+        cars.forEach(item => {
+          if (this.routesControl.includes(item.route) && item.position >= this.stopAreaPosition[0] && item.position <= this.stopAreaPosition[1]) {
+            item.speed = 0;
+          }
+        });
+      } else {
+        this.trafficLightsOn = true;
+        colorTrafficLights.setAttribute('fill', '#24AB12');
+        cars.forEach(item => {
+          if (this.routesControl.includes(item.route)) {
+            item.speed = item.originalSpeed;
+          }
+        });
       }
     });
-  } else {
-    trafficLights.style.backgroundColor = 'green';
-    trafficLightsOn = true;
-    console.log('greenOn');
-    cars.forEach(item => {
-      item.speed = item.originalSpeed; // Возвращаем оригинальную скорость машинкам
-    });
+    return colorTrafficLights;
   }
-});
+}
+
+// // let TL3 = new TrafficLights('third').createTrafficLights('413', '326')
+// // let TL4 = new TrafficLights('fourth').createTrafficLights('438', '444')
+
+let trafficLightsArray = [];
+
+const TL1 = new TrafficLights('first', ['#route1', '#route2'], ['280', '295', '310']);
+const TL2 = new TrafficLights('second', ['#route3'], ['250', '265', '280']);
+TL1.createTrafficLights(353, 420);
+TL2.createTrafficLights(499, 348);
+
+trafficLightsArray.push(TL1, TL2);
 
 function startGame() {
   if (!gameInterval) {
@@ -265,12 +304,13 @@ function gameTimer() {
   const carsImg = 3;
   cars.forEach(car => car.move());
 
-  if (elapsedTime - checkTime >= 2) {
+  if (elapsedTime - checkTime >= 1) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
-    let newAuto = new Auto('#route1', '5s', `assets/car${randomImg}.png`, 3, 0).createAuto();
-    // let newAuto2 = new Auto('#route2', '5s', `assets/car${randomImg}.png`, 3, 180).createAuto();
-    cars.push(newAuto); // Добавляем новую машинку в массив
-    // cars.push(newAuto2); // Добавляем новую машинку в массив
+    let randomRoute = Math.floor(Math.random() * 3) + 1;
+    let coordY = '-19'
+    let newAuto = new Auto(`#route${randomRoute}`, `${coordY}`, `assets/car${randomImg}.png`, 3, 0).createAuto();
+    cars.push(newAuto);
     checkTime = elapsedTime;
   }
 }
+
