@@ -157,7 +157,7 @@ class Auto {
     this.animateMotion = null;
     this.rotateCar = 0
     this.speed = speed || 3;
-    this.position = 0; // Изначальная позиция машинки
+    this.position = 0; 
     this.originalSpeed = this.speed;
     this.prevPoint = { x: 0, y: 0 };
   }
@@ -181,36 +181,47 @@ class Auto {
     // let index = cars.indexOf(this);
     let indexPrevious
     let safeDistance = 45;
+    let firstCarStop = false
+    let positionFirstCar
    
     trafficLightsArray.forEach(tl => {
       if(!tl.trafficLightsOn) {
         console.log(`выключен ${tl.id}`)
         cars.forEach((item, index) => {
           if(tl.routesControl.includes(item.route) && item.position >= tl.stopAreaPosition[0] && item.position < tl.stopAreaPosition[1]) {
-          console.log(`показать ${item.route}`)
           item.speed = 0
-          // indexPrevious = cars[index - 1]
-          // console.log(indexPrevious)
-          } 
-
+          positionFirstCar = item.position
+          firstCarStop = true
+          console.log(`индекс первой авто которая остановилась: ${index}`)
+          console.log(`позиция первой авто: ${positionFirstCar}`)
+          } else if (tl.routesControl.includes(item.route) && firstCarStop) {
+            let previousCar = cars[index];
+            if(positionFirstCar - previousCar.position < safeDistance * 2 && positionFirstCar - previousCar.position > safeDistance){
+              previousCar.speed = 0.8
+            } else if (positionFirstCar - previousCar.position <= safeDistance) {
+              previousCar.speed = 0
+            }
+          }
       })
-    }
-
-
-      // else {
-      //   if (index > 0) {
-      //     let previousCar = cars[index - 1];
-      //     if (previousCar.position - this.position < safeDistance * 2 && previousCar.position - this.position > safeDistance) {
-      //       this.speed = 0.9;
-      //     } else if (previousCar.position - this.position <= safeDistance) {
-      //       this.speed = 0;
-      //     } else {
-      //       this.speed = this.originalSpeed;
-      //     }
-      //   } else {
-      //       this.speed = this.originalSpeed;
-      //     }
-      //   }
+    } 
+    // else {
+    //     if (index > 0) {
+    //       let previousCar = cars[index - 1];
+    //       if (previousCar.position - this.position < safeDistance * 2 && previousCar.position - this.position > safeDistance) {
+    //         this.speed = 0.9;
+    //       }
+    //       else if (previousCar.position - this.position <= safeDistance) {
+    //         this.speed = 0;
+    //       } 
+    //       else {
+    //         this.speed = this.originalSpeed;
+    //       }
+    //     } 
+    //     else {
+    //         this.speed = this.originalSpeed;
+    //       }
+          
+    //     }
 
     });
 
