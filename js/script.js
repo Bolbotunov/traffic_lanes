@@ -140,11 +140,11 @@ let elapsedTime = 0;
 let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
-let waitingTime = 5
+let waitingTime = 7
 let newWaitingTime = 0
-let timeOfCrazyRide = 2
+let timeOfCrazyRide = 1
 let gameInterval;
-let cars = []; // Массив для хранения всех созданных машинок
+let cars = []
 
 class Auto {
   constructor(route, coordY, typeCar, speed, IsTurns) {
@@ -189,26 +189,36 @@ class Auto {
     let car = this.autoElement
     let carPosition = this.position
 
+
     trafficLightsArray.forEach((tl) => {
-      if (!tl.trafficLightsOn) {
-        if (tl.routesControl.includes(car.id)) {
-          if (carPosition > tl.stopAreaPosition[0] && carPosition <= tl.stopAreaPosition[1]) {
-          this.speed = 0.9
-        }
-        if (carPosition > tl.stopAreaPosition[1] && carPosition <= tl.stopAreaPosition[2]) {
-          this.speed = 0
+      if (tl.routesControl.includes(car.id)) {
+        if (!tl.trafficLightsOn) {
+          if (elapsedTime - elapsedTimeTraffic <= waitingTime) {
+            if (carPosition > tl.stopAreaPosition[0] && carPosition <= tl.stopAreaPosition[1]) {
+              this.speed = 0.9;
+            }
+            if (carPosition > tl.stopAreaPosition[1] && carPosition <= tl.stopAreaPosition[2]) {
+              this.speed = 0;
+            }
+          } else if (elapsedTime - elapsedTimeTraffic >= waitingTime && newWaitingTime <= timeOfCrazyRide) {
+            newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime;
+            this.speed = this.originalSpeed;
+          } else if (newWaitingTime >= timeOfCrazyRide) {
+            elapsedTimeTraffic = elapsedTime;
+            newWaitingTime = 0;
+            if (carPosition <= tl.stopAreaPosition[2]) {
+              this.speed = 0;
+            }
+          }
+        } else {
+          this.speed = this.originalSpeed;
         }
       }
-    } else if (tl.trafficLightsOn) {
-        if (tl.routesControl.includes(car.id)) {
-          this.speed = this.originalSpeed
-      }
-    }
 
     let carsOnSameRoute = cars.filter(car => {
       return trafficLightsArray.some(tl => tl.routesControl.includes(car.route) && tl.routesControl.includes(this.route));
     });
-    
+
     carsOnSameRoute.sort((a, b) => a.position - b.position);
     let currentCarIndex = carsOnSameRoute.indexOf(this);
   
@@ -283,6 +293,7 @@ class TrafficLights {
 
     colorTrafficLights.addEventListener('click', () => {
       if (this.trafficLightsOn) {
+        elapsedTimeTraffic = elapsedTime
         this.trafficLightsOn = false;
         colorTrafficLights.setAttribute('fill', 'red');
         elapsedTimeTraffic = elapsedTime;
@@ -322,7 +333,7 @@ function gameTimer() {
     car.move()
   });
 
-  if (elapsedTime - checkTime >= 1) {
+  if (elapsedTime - checkTime >= 0.8) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
     let randomRoute = Math.floor(Math.random() * 12) + 1;
     let coordY = '-19'
@@ -332,6 +343,14 @@ function gameTimer() {
     checkTime = elapsedTime;
   }
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -360,3 +379,28 @@ function gameTimer() {
 //     rect1.bottom > rect2.top
 //   )
 // }
+
+
+
+
+
+
+
+
+// if (!trafficLightsOn && elapsedTime - elapsedTimeTraffic >= waitingTime &&  newWaitingTime < timeOfCrazyRide) {
+//   newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime
+//   this.speed = this.originalSpeed
+// } else if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
+// }
+
+// if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
+//   elapsedTimeTraffic = elapsedTime
+//   newWaitingTime = 0
+//   this.speed = 0
+// }
+
+// if (!trafficLightsOn && this.position >= 430 && this.position < 450 && elapsedTime - elapsedTimeTraffic < waitingTime) {
+// if (!trafficLightsOn && this.position >= 280 && this.position < 310 && elapsedTime - elapsedTimeTraffic < waitingTime) {
+//   this.speed = 0;
+// } else {
+//   if (index > 0) {
