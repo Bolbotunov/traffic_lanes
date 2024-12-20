@@ -42,7 +42,7 @@ class Road {
     let route = document.createElementNS("http://www.w3.org/2000/svg", "path");
     route.setAttribute('id', id);
     route.setAttribute('d', pathCoordinates);
-    // route.setAttribute('stroke', stroke);
+    route.setAttribute('stroke', stroke);
     route.setAttribute('fill', 'transparent');
     fieldSVG.appendChild(route);
     let pathLength = route.getTotalLength();
@@ -119,12 +119,12 @@ createMap()
 
 const roadPath = new Road(fieldSVG)
 roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
-roadPath.createPath('route2', 'M0 410 L 360 410 C 440 410, 420 440, 424 480 L 424 740', 'green');
-roadPath.createPath('route3', 'M0 410 L 360 410 C 440 410, 446 440, 444 280 L 448 0', 'red');
+roadPath.createPath('route2', 'M0 410 L 360 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
+roadPath.createPath('route3', 'M0 410 L 380 410 C 380 400, 455 445, 448 280 L 448 0', 'red');
 
 roadPath.createPath('route4', 'M870 385 L 0 385', 'grey');
 roadPath.createPath('route5', 'M870 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
-roadPath.createPath('route6', 'M870 385 L 480 385 C 420 320, 455 340, 444 0 L 364 0', 'green');
+roadPath.createPath('route6', 'M870 385 L 480 385 C 430 320, 465 340, 444 0 L 364 0', 'green');
 
 roadPath.createPath('route7', 'M425 0 L 425 810', 'pink');
 roadPath.createPath('route8', 'M425 0 L 425 300 C 425 300, 425 400, 350 385 L 0 385', 'green');
@@ -132,7 +132,7 @@ roadPath.createPath('route9', 'M425 0 L 425 300 C 425 380, 415 390, 450 405 L 87
 
 roadPath.createPath('route10', 'M445 810 L 445 0', 'black');
 roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L 0 385', 'red');
-roadPath.createPath('route12', 'M445 810 L 445 470 C 450 430, 460 418, 480 410 L 870 410', 'green');
+roadPath.createPath('route12', 'M445 810 L 445 490 C 455 430, 470 418, 480 410 L 870 410', 'green');
 
 
 
@@ -159,28 +159,56 @@ class Auto {
     this.prevPoint = { x: 0, y: 0 };
   }
 
- createAuto() {
+  createAuto() {
+
+    const groupImages = document.createElementNS("http://www.w3.org/2000/svg", "g");
     const auto = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    const indicator = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    indicator.setAttribute('cx', '5');
-    indicator.setAttribute('cy', '5');
-    indicator.setAttribute('r', '33');
-    indicator.setAttribute('fill', 'orange');
     auto.setAttribute('href', this.typeCar);
-    auto.setAttribute('width', '35');
+    auto.setAttribute('width', '30');
     auto.setAttribute('x', '0');
     auto.setAttribute('y', this.coordY);
-    auto.setAttribute('height', '35');
+    auto.setAttribute('height', '15');
     auto.setAttribute('transform', 'translate(0, 0)');
-    auto.setAttribute('id', this.route);
-    auto.appendChild(indicator);
-    this.autoElement = auto;
     
-    fieldSVG.appendChild(auto);
-   
+    groupImages.appendChild(auto);
+  
+    // const indicatorBack = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    // indicatorBack.setAttribute('x', '1');
+    // indicatorBack.setAttribute('y', '4');
+    // indicatorBack.setAttribute('width', '1');
+    // indicatorBack.setAttribute('height', '3');
+    // // indicatorBack.setAttribute('transform', transform, `rotate(${this.angle})`);
+    // indicatorBack.setAttribute('fill', 'yellow');
+
+
+
+    // const indicatorForward = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    // indicatorForward.setAttribute('x', '26');
+    // indicatorForward.setAttribute('y', '4');
+    // indicatorForward.setAttribute('width', '1');
+    // indicatorForward.setAttribute('height', '3');
+    // indicatorForward.setAttribute('fill', 'yellow');
+    // const cx = 26 + 0.5; // Центр по X
+    // const cy = 4 + 1.5;  // Центр по Y
+    // indicatorForward.setAttribute('transform', `rotate(35, ${cx}, ${cy})`);
+ 
+    
+
+
+    
+    // // Добавление индикатора в группу
+    // groupImages.appendChild(indicatorBack);
+    // groupImages.appendChild(indicatorForward);
+    groupImages.setAttribute('id', this.route);
+  
+    // Добавление группы в SVG
+    fieldSVG.appendChild(groupImages);
+  
+    this.autoElement = groupImages;
+  
     return this;
   }
-
+  
   move() {
     const pathInfo = pathsLengths[this.route];
     const safeDistance = 45;
@@ -234,8 +262,15 @@ class Auto {
     }
     }
 
-
   })
+
+
+    cars.forEach(otherCar => {
+      if (otherCar !== this && checkCollision(this, otherCar)) {
+        this.speed = 0;
+        otherCar.speed = 0;
+      }
+    });
 
 
 // ====================================
@@ -257,6 +292,18 @@ class Auto {
       cars = cars.filter(car => car !== this);
     }
   }
+}
+
+
+    function checkCollision(car1, car2) {
+  const rect1 = car1.autoElement.getBoundingClientRect();
+  const rect2 = car2.autoElement.getBoundingClientRect();
+  return (
+    rect1.left + 6 < rect2.right &&
+    rect1.right > rect2.left + 6 &&
+    rect1.top + 6 < rect2.bottom &&
+    rect1.bottom > rect2.top + 6
+  )
 }
 
 
@@ -336,7 +383,7 @@ function gameTimer() {
   if (elapsedTime - checkTime >= 0.8) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
     let randomRoute = Math.floor(Math.random() * 12) + 1;
-    let coordY = '-19'
+    let coordY = '-6'
     let IsTurns = true
     let newAuto = new Auto(`#route${randomRoute}`, `${coordY}`, `assets/car${randomImg}.png`, 3, IsTurns).createAuto()
     cars.push(newAuto);
@@ -380,27 +427,3 @@ function gameTimer() {
 //   )
 // }
 
-
-
-
-
-
-
-
-// if (!trafficLightsOn && elapsedTime - elapsedTimeTraffic >= waitingTime &&  newWaitingTime < timeOfCrazyRide) {
-//   newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime
-//   this.speed = this.originalSpeed
-// } else if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
-// }
-
-// if (!trafficLightsOn && newWaitingTime >= timeOfCrazyRide) {
-//   elapsedTimeTraffic = elapsedTime
-//   newWaitingTime = 0
-//   this.speed = 0
-// }
-
-// if (!trafficLightsOn && this.position >= 430 && this.position < 450 && elapsedTime - elapsedTimeTraffic < waitingTime) {
-// if (!trafficLightsOn && this.position >= 280 && this.position < 310 && elapsedTime - elapsedTimeTraffic < waitingTime) {
-//   this.speed = 0;
-// } else {
-//   if (index > 0) {
