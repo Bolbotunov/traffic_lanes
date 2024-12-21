@@ -6,6 +6,23 @@ let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 750
 start.addEventListener('click', startGame)
+let tree = document.querySelector('.img-container')
+
+const treeImages = [
+  '../assets/tree1.png',
+  '../assets/tree2.png',
+  '../assets/tree3.png',
+  '../assets/tree4.png'
+];
+let currentImageIndex = 0;
+
+function changeBackgroundImage() {
+  // tree.style.backgroundImage = `url(${treeImages[currentImageIndex]})`;
+  // currentImageIndex = (currentImageIndex + 1) % treeImages.length;
+
+}
+
+
 
 class Road {
   constructor(fieldSVG, offsetX = 0, offsetY = 0, angle) {
@@ -139,6 +156,44 @@ roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L
 
 
 
+
+class Trees {
+  constructor(fieldSVG) {
+    this.fieldSVG = fieldSVG;
+  }
+
+  createTree(x, y, randomTree,randomMotion) {
+    const trees = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    trees.setAttribute('href', `assets/tree${randomTree}.png`);
+    trees.setAttribute('width', '100');
+    trees.setAttribute('height', '100');
+    trees.setAttribute('class', `motionTrees${randomMotion}`);
+    const treesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    treesGroup.setAttribute('transform', `translate(${x}, ${y})`);
+    treesGroup.appendChild(trees);
+    this.fieldSVG.appendChild(treesGroup);
+  }
+// 0 325 x  275 y
+  createForest(x, y) {
+    for (let i = 0; i < 75; i++) {
+      let randomMotion = Math.floor(Math.random() * 3) + 1;
+      let randomTree = Math.floor(Math.random() * 4) + 1;
+      let randomTreeX = Math.floor(Math.random() * 325) + 1;
+      let randomTreeY = Math.floor(Math.random() * 275) + 1;
+      this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
+    }
+  }
+}
+
+
+let createTree = new Trees(fieldSVG);
+createTree.createForest(50, 100);
+
+
+
+
+
+
 let elapsedTime = 0;
 let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
@@ -151,8 +206,7 @@ let gameInterval;
 let cars = []
 
 class Auto {
-  constructor(route, coordY, typeCar, speed, IsTurns) {
-    this.coordY = coordY
+  constructor(route, typeCar, speed, IsTurns) {
     this.route = route;
     this.typeCar = typeCar;
     this.rotateCar = 0
@@ -169,7 +223,7 @@ class Auto {
     auto.setAttribute('href', this.typeCar);
     auto.setAttribute('width', '30');
     auto.setAttribute('x', '0');
-    auto.setAttribute('y', this.coordY);
+    auto.setAttribute('y', '-6');
     auto.setAttribute('height', '15');
     auto.setAttribute('transform', 'translate(0, 0)');
     groupImages.appendChild(auto);
@@ -227,18 +281,6 @@ class Auto {
 const group = document.querySelector(`g[id="${this.route}"]`);
 const rects = group.querySelectorAll('rect');
 
-
-
-// rects.forEach(rect => {
-//     if (elapsedTime - indicatorTime < 0.5 && IsTurns) {
-//       rect.setAttribute('fill-opacity', `1`)
-//       console.log(rect.getAttribute('fill-opacity'))
-//     } else if (elapsedTime - indicatorTime >= 0.5 && elapsedTime - checkTime <= 1  && IsTurns) {
-//       rect.setAttribute('fill-opacity', '0');
-//       console.log(rect.getAttribute('fill-opacity'))
-//       indicatorTime = elapsedTime;
-//     }
-// });
 
     trafficLightsArray.forEach((tl) => {
       if (tl.routesControl.includes(car.id)) {
@@ -428,9 +470,10 @@ function gameTimer() {
     }
     whereTurns = turnDirection[randomRoute];
     console.log(whereTurns)
-    let newAuto = new Auto(`#route${randomRoute}`, -6, `assets/car${randomImg}.png`, 3, whereTurns).createAuto()
+    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns).createAuto()
     cars.push(newAuto);
     checkTime = elapsedTime;
+    
   }
 }
 
@@ -439,30 +482,29 @@ function gameTimer() {
 
 
 
+// const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+// const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+// clipPath.setAttribute('id', 'tree');
+// const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+// rect.setAttribute('x', '0');
+// rect.setAttribute('y', '0');
+// rect.setAttribute('width', '100');
+// rect.setAttribute('height', '88');
+// clipPath.appendChild(rect);
+// defs.appendChild(clipPath);
+// trees.appendChild(defs);
 
+// const spriteImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
+// spriteImage.setAttribute('href', 'assets/tree1.png');
+// spriteImage.setAttribute('width', '100');
+// spriteImage.setAttribute('height', '375');
+// spriteImage.setAttribute('y', '-12');
+// spriteImage.setAttribute('class', 'motionTrees');
 
+// const spriteGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+// spriteGroup.setAttribute('clip-path', 'url(#tree)');
 
+// spriteGroup.appendChild(spriteImage);
+// trees.appendChild(spriteGroup);
 
-
-    // cars.forEach(otherCar => {
-    //   if (otherCar !== this && checkCollision(this, otherCar)) {
-    //     this.speed = 0;
-    //     otherCar.speed = 0;
-    //     console.log('collision')
-    //   }
-    // });
-
-
-    // function checkCollision(car1, car2) {
-//   const rect1 = car1.autoElement.getBoundingClientRect();
-//   const rect2 = car2.autoElement.getBoundingClientRect();
-// console.log(rect1.left, rect1.right, rect1.top, rect1.bottom)
-// console.log(rect2.left, rect2.right, rect2.top, rect2.bottom)
-//   return (
-//     rect1.left < rect2.right &&
-//     rect1.right > rect2.left &&
-//     rect1.top < rect2.bottom &&
-//     rect1.bottom > rect2.top
-//   )
-// }
-
+// fieldSVG.appendChild(trees);
