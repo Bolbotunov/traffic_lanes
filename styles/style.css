@@ -48,6 +48,10 @@ body{
   .glow {
     filter: drop-shadow(2px 0px 2px yellow)
   }
+  svg{
+  border-radius: 40px;
+  border: 2px solid rgb(212, 128, 25);
+}
 
   @keyframes blink {
     0% { fill-opacity: 1; }
@@ -101,6 +105,13 @@ body{
   }
   
   
+#activeArea{
+  position: relative;
+  z-index: 20;
+}
+
+
+
 
 
   /* .img-container {
