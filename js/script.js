@@ -6,21 +6,11 @@ let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 750
 start.addEventListener('click', startGame)
-let tree = document.querySelector('.img-container')
 
-const treeImages = [
-  '../assets/tree1.png',
-  '../assets/tree2.png',
-  '../assets/tree3.png',
-  '../assets/tree4.png'
-];
-let currentImageIndex = 0;
+window.addEventListener('DOMContentLoaded', function() {
+  
+})
 
-function changeBackgroundImage() {
-  // tree.style.backgroundImage = `url(${treeImages[currentImageIndex]})`;
-  // currentImageIndex = (currentImageIndex + 1) % treeImages.length;
-
-}
 
 
 
@@ -35,16 +25,18 @@ class Road {
     this.fieldSVG.appendChild(this.group);
   }
 
-  createRect(x, y, width, height, transform, fill) {
+  createRect(x, y, width, height, transform, fill, id = null) {
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     rect.setAttribute('x', x);
     rect.setAttribute('y', y);
     rect.setAttribute('width', width);
     rect.setAttribute('height', height);
-    rect.setAttribute('transform', transform, `rotate(${this.angle})`);
+    rect.setAttribute('transform', transform);
     rect.setAttribute('fill', fill);
+    if (id) rect.setAttribute('id', id);
     this.group.appendChild(rect);
   }
+  
 
   createPathSVG(d, fill, stroke, strokeWidth) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -59,7 +51,7 @@ class Road {
     let route = document.createElementNS("http://www.w3.org/2000/svg", "path");
     route.setAttribute('id', id);
     route.setAttribute('d', pathCoordinates);
-    // route.setAttribute('stroke', stroke);
+    route.setAttribute('stroke', stroke);
     route.setAttribute('fill', 'transparent');
     fieldSVG.appendChild(route);
     let pathLength = route.getTotalLength();
@@ -87,6 +79,11 @@ class Road {
     this.createRect("58", "9", "4", "22", "rotate(-90 58 9)", "white");
     this.createRect("82", "155", "4", "22", "rotate(-90 82 155)", "white");
   }
+  drawPlatform() {
+    this.createRect('62.311', '75.9492', '21', '80.0999', 'rotate(-141.176 62.311 75.9492)', '#D4BC74');
+    this.createRect('-2.46187', '89.9216', '51.3934', '60.3702', 'rotate(-51.0494 -2.46187 89.9216)', '#E5AE09', 'activeArea');
+  }
+  
 }
 
 let fieldSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -97,6 +94,30 @@ fieldSVG.setAttribute('viewBox', '0 50 870 690');
 fieldSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 fieldSVG.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 gameField.appendChild(fieldSVG);
+
+
+
+// let fog = document.createElementNS("http://www.w3.org/2000/svg", "g");
+// fog.setAttribute('width', `${sizeFieldW}`);
+// fog.setAttribute('height', `${sizeFieldH}`);
+// fog.setAttribute('viewBox', '0 50 870 690');
+
+
+
+// fieldSVG.addEventListener('click', function(e) {
+//   console.log(`${e.pageX}, ${e.pageY}`)
+//   let topPos = e.target.getBoundingClientRect().top
+//   let leftPos = e.target.getBoundingClientRect().left
+//   // let currentPosY = e.pageY - topPos
+//   console.log(leftPos)
+//   console.log(topPos)
+//   // let currentPosX = e.pageX - leftPos
+
+//   // 210x   -  280x
+//   // 310y   - 380y
+//   //roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
+// })
+
 
 
 function createMap() {
@@ -130,6 +151,10 @@ function createMap() {
     roadPart.draw();
     offsetY += 100;
   }
+  offsetX = 294
+  offsetY = 419
+  const evacuatePlatform = new Road(fieldSVG, offsetX, offsetY, 5)
+  evacuatePlatform.drawPlatform()
 }
 createMap()
 
@@ -154,9 +179,6 @@ roadPath.createPath('route12', 'M445 810 L 445 490 C 455 430, 470 418, 480 410 L
 roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L 0 385', 'red');
 
 
-
-
-
 class Trees {
   constructor(fieldSVG) {
     this.fieldSVG = fieldSVG;
@@ -173,26 +195,21 @@ class Trees {
     treesGroup.appendChild(trees);
     this.fieldSVG.appendChild(treesGroup);
   }
-// 0 325 x  275 y
-  createForest(x, y) {
-    for (let i = 0; i < 75; i++) {
+  createForest() {
+    for (let i = 0; i < 50; i++) {
       let randomMotion = Math.floor(Math.random() * 3) + 1;
       let randomTree = Math.floor(Math.random() * 4) + 1;
-      let randomTreeX = Math.floor(Math.random() * 325) + 1;
-      let randomTreeY = Math.floor(Math.random() * 275) + 1;
+      let randomTreeX = Math.floor(Math.random() * 65) * 5;
+      let randomTreeY = Math.floor(Math.random() * 55) * 5;
       this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
     }
   }
 }
 
-
 let createTree = new Trees(fieldSVG);
-createTree.createForest(50, 100);
+createTree.createForest();
 
-
-
-
-
+// ================Машинки=================================
 
 let elapsedTime = 0;
 let elapsedTimeTraffic = 0
@@ -266,7 +283,6 @@ class Auto {
     fieldSVG.appendChild(groupImages);
     this.autoElement = groupImages;
 
-
     return this;
   }
 
@@ -336,9 +352,6 @@ const rects = group.querySelectorAll('rect');
       }
     });
 
-
-// ====================================
-
     if (this.position < pathInfo.length) {
       this.position += this.speed * 0.5;
       const point = pathInfo.element.getPointAtLength(this.position);
@@ -372,6 +385,7 @@ const rects = group.querySelectorAll('rect');
 
 
 // ===================Светофор==================================
+
 class TrafficLights {
   constructor(id, routesControl, stopAreaPosition) {
     this.id = id;
@@ -431,6 +445,100 @@ TL4.createTrafficLights(464, 456);
 
 trafficLightsArray.push(TL1, TL2, TL3, TL4);
 
+let evacuatorCall = false
+let whereTurns
+
+
+
+let collapseCoordinatesX = null
+let collapseCoordinatesY = null
+
+roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
+
+
+
+const testCar = document.createElementNS("http://www.w3.org/2000/svg", "image");
+testCar.setAttribute('href', 'assets/car1.png');
+testCar.setAttribute('width', '30');
+testCar.setAttribute('x', '460');
+testCar.setAttribute('y', '25');
+testCar.setAttribute('height', '15');
+testCar.setAttribute('id', 'testCar');
+testCar.setAttribute('transform', 'translate(0, 0)');
+fieldSVG.appendChild(testCar);
+
+let testCarPoint = document.getElementById('testCar')
+
+
+let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 1).createAuto();
+evacuator.move();
+let helpEvacuate = false;
+let evacuatorCarGroup = document.getElementById('#routeEvacuator');
+let evacuatorCarImage = evacuatorCarGroup.querySelector('image');
+
+evacuatorCarImage.style.cursor = 'grab';
+
+let currentPositionCursorX;
+let currentPositionCursorY;
+
+evacuatorCarImage.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  currentPositionCursorX = e.clientX - evacuatorCarImage.getBoundingClientRect().left;
+  currentPositionCursorY = e.clientY - evacuatorCarImage.getBoundingClientRect().top;
+  document.addEventListener('mousemove', mouseMoveFn);
+  document.addEventListener('mouseup', mouseUpFn);
+});
+
+function mouseMoveFn(e) {
+  e.preventDefault();
+  evacuatorCarImage.style.cursor = 'grabbing';
+  let currentCoordinatesX = e.clientX - currentPositionCursorX;
+  let currentCoordinatesY = e.clientY - currentPositionCursorY;
+
+  evacuatorCarImage.setAttribute('transform', `translate(${currentCoordinatesX}, ${currentCoordinatesY})`);
+}
+
+function mouseUpFn(e) {
+  e.preventDefault();
+  evacuatorCarImage.style.cursor = 'grab';
+  document.removeEventListener('mousemove', mouseMoveFn);
+  document.removeEventListener('mouseup', mouseUpFn);
+}
+
+let arrFogs = []
+class Fog {
+  constructor(fieldSVG, href, fogSpeed, x) {
+    this.fieldSVG = fieldSVG
+    this.href = href
+    this.fogSpeed = fogSpeed
+    this.x = x
+
+  }
+  createFog(width, height, y, opacity) {
+    let fog = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    fog.setAttribute('width', width);
+    fog.setAttribute('height', height);
+    fog.setAttribute('x', this.x);
+    fog.setAttribute('y', y);
+    fog.setAttribute('href', this.href);
+    fog.setAttribute('opacity', opacity);
+    fog.style.pointerEvents = 'none'
+    fieldSVG.appendChild(fog)
+    this.fog = fog
+    return this
+  }
+   fogMove() {
+    this.x += this.fogSpeed
+    this.fog.setAttribute('x', this.x);
+    if (this.x >= fieldSVG.getAttribute('width')) {
+      this.fog.remove();
+      arrFogs = arrFogs.filter(item => item !== this);
+      console.log(arrFogs)
+   }
+}
+
+}
+let fogTimeLine = 0
 
 
 
@@ -440,13 +548,29 @@ function startGame() {
   }
 }
 
-let whereTurns
 function gameTimer() {
   elapsedTime += 1 / 60;
   const carsImg = 4;
   cars.forEach(car => {
     car.move()
   });
+  if (evacuatorCall) {
+    evacuator.move()
+  }
+
+  if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 2) {
+    let randomY= Math.floor(Math.random() * 300);
+    let randomWidth = Math.floor(Math.random() * 700) + 100;
+    let randomHeight = Math.floor(Math.random() * 700) + 100;
+    let newFog = new Fog(fieldSVG, '../assets/fog.png', 0.4, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
+     fogTimeLine = elapsedTime
+     arrFogs.push(newFog)
+  }
+
+    
+
+arrFogs.forEach((item)=> item.fogMove())
+
 
   if (elapsedTime - checkTime >= 0.7) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
@@ -469,7 +593,6 @@ function gameTimer() {
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    console.log(whereTurns)
     let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns).createAuto()
     cars.push(newAuto);
     checkTime = elapsedTime;
@@ -482,29 +605,4 @@ function gameTimer() {
 
 
 
-// const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-// const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-// clipPath.setAttribute('id', 'tree');
-// const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-// rect.setAttribute('x', '0');
-// rect.setAttribute('y', '0');
-// rect.setAttribute('width', '100');
-// rect.setAttribute('height', '88');
-// clipPath.appendChild(rect);
-// defs.appendChild(clipPath);
-// trees.appendChild(defs);
 
-// const spriteImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
-// spriteImage.setAttribute('href', 'assets/tree1.png');
-// spriteImage.setAttribute('width', '100');
-// spriteImage.setAttribute('height', '375');
-// spriteImage.setAttribute('y', '-12');
-// spriteImage.setAttribute('class', 'motionTrees');
-
-// const spriteGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-// spriteGroup.setAttribute('clip-path', 'url(#tree)');
-
-// spriteGroup.appendChild(spriteImage);
-// trees.appendChild(spriteGroup);
-
-// fieldSVG.appendChild(trees);
