@@ -2,10 +2,17 @@ const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
 let start = document.querySelector('.start')
+let restart = document.querySelector('.restart')
 let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 700
 start.addEventListener('click', startGame)
+restart.addEventListener('click', restartGame)
+
+function restartGame() {
+  location.reload();
+  fullScreen(document.documentElement);
+}
 
 window.addEventListener('DOMContentLoaded', function() {
   
@@ -166,8 +173,8 @@ gameField.appendChild(fieldSVG);
 
 
 function createMap() {
-  let n = 4;
-  offsetX = -38;
+  let n = 5;
+  offsetX = -88;
   offsetY = 20
   for (let i = 0; i < n; i++) {
     const roadPart = new Road(fieldSVG, offsetX, 320, 0);
@@ -392,6 +399,9 @@ const rects = group.querySelectorAll('rect');
 
     cars.forEach(otherCar => {
       if (otherCar !== this && checkCollision(this, otherCar)) {
+        // let collapseCoordinatesX = this.clientX
+        // let collapseCoordinatesY = this.clientY
+        // console.log(collapseCoordinatesY)
         this.speed = 0;
         otherCar.speed = 0;
       }
@@ -415,11 +425,11 @@ const rects = group.querySelectorAll('rect');
     }
   }
 }
-
-
+let rect1
+let rect2
     function checkCollision(car1, car2) {
-  const rect1 = car1.autoElement.getBoundingClientRect();
-  const rect2 = car2.autoElement.getBoundingClientRect();
+  rect1 = car1.autoElement.getBoundingClientRect();
+  rect2 = car2.autoElement.getBoundingClientRect();
   return (
     rect1.left + 6 < rect2.right &&
     rect1.right > rect2.left + 6 &&
@@ -428,6 +438,9 @@ const rects = group.querySelectorAll('rect');
   )
 }
 
+if(checkCollision) {
+  console.log(rect1, rect2)
+}
 
 // ===================Светофор==================================
 
@@ -495,12 +508,9 @@ let whereTurns
 
 
 
-let collapseCoordinatesX = null
-let collapseCoordinatesY = null
+
 
 roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
-
-
 
 const testCar = document.createElementNS("http://www.w3.org/2000/svg", "image");
 testCar.setAttribute('href', 'assets/car1.png');
