@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 function updateHeight() {
   const fieldHeight = window.innerHeight * 0.8;
-  gameField.style.setProperty('--quarter-height', `${fieldHeight}px`);
+  gameField.style.setProperty('--field-height', `${fieldHeight}px`);
 }
 
 updateHeight();
@@ -166,8 +166,8 @@ gameField.appendChild(fieldSVG);
 
 
 function createMap() {
-  let n = 5;
-  offsetX = -88;
+  let n = 4;
+  offsetX = -38;
   offsetY = 20
   for (let i = 0; i < n; i++) {
     const roadPart = new Road(fieldSVG, offsetX, 320, 0);
@@ -512,43 +512,59 @@ testCar.setAttribute('id', 'testCar');
 testCar.setAttribute('transform', 'translate(0, 0)');
 fieldSVG.appendChild(testCar);
 
+// ========================DRAG===============================
+
 let testCarPoint = document.getElementById('testCar')
-
-
 let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 1).createAuto();
 evacuator.move();
 let helpEvacuate = false;
 let evacuatorCarGroup = document.getElementById('#routeEvacuator');
-let evacuatorCarImage = evacuatorCarGroup.querySelector('image');
+// let evacuatorCarImage = evacuatorCarGroup.querySelector('image');
 
+let evacuatorCarImage = document.querySelector('.evacuator-block-image');
 evacuatorCarImage.style.cursor = 'grab';
 
-let currentPositionCursorX;
-let currentPositionCursorY;
-
-evacuatorCarImage.addEventListener('mousedown', function(e) {
+let startX, startY, initialX = 0, initialY = 0;
+function handleStart(e) {
   e.preventDefault();
-  currentPositionCursorX = e.clientX - evacuatorCarImage.getBoundingClientRect().left;
-  currentPositionCursorY = e.clientY - evacuatorCarImage.getBoundingClientRect().top;
-  document.addEventListener('mousemove', mouseMoveFn);
-  document.addEventListener('mouseup', mouseUpFn);
-});
+  let startTapX = e.touches ? e.touches[0].clientX : e.clientX
+  let startTapY = e.touches ? e.touches[0].clientY : e.clientY
+  console.log(startTapX)
+  startX = startTapX - initialX;
+  startY = startTapY - initialY;
+  document.addEventListener('mousemove', moveFn);
+  document.addEventListener('mouseup', handleEndFn);
+  document.addEventListener('touchmove', moveFn);
+  document.addEventListener('touchend', handleEndFn);
+}
 
-function mouseMoveFn(e) {
-  e.preventDefault();
+
+function moveFn(e) {
   evacuatorCarImage.style.cursor = 'grabbing';
-  let currentCoordinatesX = e.clientX - currentPositionCursorX;
-  let currentCoordinatesY = e.clientY - currentPositionCursorY;
+  let startTapX = e.touches ? e.touches[0].clientX : e.clientX
+  let startTapY = e.touches ? e.touches[0].clientY : e.clientY
 
-  evacuatorCarImage.setAttribute('transform', `translate(${currentCoordinatesX}, ${currentCoordinatesY})`);
+  let newX = startTapX - startX;
+  let newY = startTapY - startY;
+
+  initialX = newX;
+  initialY = newY;
+  evacuatorCarImage.style.transform = `translate(${newX}px, ${newY}px)`;
 }
 
-function mouseUpFn(e) {
-  e.preventDefault();
+function handleEndFn() {
   evacuatorCarImage.style.cursor = 'grab';
-  document.removeEventListener('mousemove', mouseMoveFn);
-  document.removeEventListener('mouseup', mouseUpFn);
+  document.removeEventListener('mousemove', moveFn);
+  document.removeEventListener('mouseup', handleEndFn);
+  document.removeEventListener('touchmove', moveFn);
+  document.removeEventListener('touchend', handleEndFn);
 }
+
+evacuatorCarImage.addEventListener('mousedown', handleStart);
+evacuatorCarImage.addEventListener('touchstart', handleStart);
+
+
+
 
 let arrFogs = []
 class Fog {
@@ -645,10 +661,3 @@ arrFogs.forEach((item)=> item.fogMove())
     
   }
 }
-
-
-
-
-
-
-
