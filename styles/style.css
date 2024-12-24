@@ -106,18 +106,21 @@ body{
 @media (max-width: 768px) {
   .field {
     max-height: 320px;
+    max-width: 320px;
   }
 }
 
 @media (max-width: 600px) {
   .field {
     max-height: 280px;
+    max-width: 280px;
   }
 }
 
 @media (max-width: 500px) {
   .field {
     max-height: 220px;
+    max-width: 220px;
   }
 }
 
