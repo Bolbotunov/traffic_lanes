@@ -210,7 +210,7 @@ class Trees {
 }
 
 let createTree = new Trees(fieldSVG);
-// createTree.createForest();
+createTree.createForest();
 
 // ================Машинки=================================
 
@@ -565,7 +565,7 @@ function gameTimer() {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, '../assets/fog.png', 0.4, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
+    let newFog = new Fog(fieldSVG, 'assets/fog.png', 0.5, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
