@@ -11,6 +11,10 @@ window.addEventListener('DOMContentLoaded', function() {
   
 })
 
+window.addEventListener('load', () => {
+  document.body.style.overflow = 'hidden';
+});
+
 
 
 
