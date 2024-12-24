@@ -117,10 +117,9 @@ body{
   }
 }
 
-@media (max-width: 500px) {
+@media only screen and (max-height: 600px) and (orientation: landscape) {
   .field {
-    max-height: 220px;
-    max-width: 220px;
+    max-height: 200px;
   }
 }
 

@@ -14,15 +14,32 @@ window.addEventListener('DOMContentLoaded', function() {
 function fullScreen(element) {
   if (element.requestFullscreen) {
     element.requestFullscreen();
-  } else if (element.mozRequestFullScreen) { // Firefox
+  } else if (element.mozRequestFullScreen) {
     element.mozRequestFullScreen();
-  } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+  } else if (element.webkitRequestFullscreen) {
     element.webkitRequestFullscreen();
-  } else if (element.msRequestFullscreen) { // IE/Edge
+  } else if (element.msRequestFullscreen) {
     element.msRequestFullscreen();
   }
 }
 
+function getViewportSize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  console.log(`Ширина видимой области: ${width}px`);
+  console.log(`Высота видимой области: ${height}px`);
+}
+
+function handleResize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  console.log(`Ширина видимой области после изменения: ${width}px`);
+  console.log(`Высота видимой области после изменения: ${height}px`);
+}
+
+getViewportSize();
+
+window.addEventListener('resize', handleResize);
 
 
 
