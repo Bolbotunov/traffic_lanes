@@ -3,8 +3,8 @@ const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
 let start = document.querySelector('.start')
 let pathsLengths = {}
-let sizeFieldH = 600
-let sizeFieldW = 750
+let sizeFieldH = 450
+let sizeFieldW = 600
 start.addEventListener('click', startGame)
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -91,8 +91,11 @@ fieldSVG.style.backgroundColor = '#8fe577';
 fieldSVG.setAttribute('width', `${sizeFieldW}`);
 fieldSVG.setAttribute('height', `${sizeFieldH}`);
 fieldSVG.setAttribute('viewBox', '0 50 870 690');
+fieldSVG.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 fieldSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 fieldSVG.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+fieldSVG.style.width = '100%'
+fieldSVG.style.height = '100%'
 gameField.appendChild(fieldSVG);
 
 
@@ -121,8 +124,8 @@ gameField.appendChild(fieldSVG);
 
 
 function createMap() {
-  let n = 4;
-  offsetX = -38;
+  let n = 5;
+  offsetX = -88;
   offsetY = 20
   for (let i = 0; i < n; i++) {
     const roadPart = new Road(fieldSVG, offsetX, 320, 0);
@@ -160,7 +163,7 @@ createMap()
 
 
 const roadPath = new Road(fieldSVG)
-roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
+roadPath.createPath('route1', 'M-80 410 L 870 410', 'black');
 roadPath.createPath('route2', 'M0 410 L 360 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
 roadPath.createPath('route3', 'M0 410 L 380 410 C 380 400, 455 445, 448 280 L 448 0', 'red');
 
@@ -562,7 +565,7 @@ function gameTimer() {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, '../assets/fog.png', 0.4, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
+    let newFog = new Fog(fieldSVG, 'assets/fog.png', 0.5, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
