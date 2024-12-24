@@ -11,9 +11,19 @@ window.addEventListener('DOMContentLoaded', function() {
   
 })
 
-window.addEventListener('load', () => {
-  document.body.style.overflow = 'hidden';
-});
+function fullScreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.mozRequestFullScreen) { // Firefox
+    element.mozRequestFullScreen();
+  } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) { // IE/Edge
+    element.msRequestFullscreen();
+  }
+}
+
+
 
 
 
@@ -551,6 +561,7 @@ let fogTimeLine = 0
 
 function startGame() {
   if (!gameInterval) {
+    fullScreen(document.documentElement);
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
@@ -569,7 +580,7 @@ function gameTimer() {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, 'assets/fog.png', 0.5, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.6)
+    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.6, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.7)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
