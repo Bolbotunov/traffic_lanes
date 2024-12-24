@@ -105,7 +105,19 @@ body{
 
 @media (max-width: 768px) {
   .field {
-    /* height: 90vh; */
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 600px) {
+  .field {
+    max-height: 280px;
+  }
+}
+
+@media (max-width: 500px) {
+  .field {
+    max-height: 220px;
   }
 }
 
