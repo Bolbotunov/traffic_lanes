@@ -76,7 +76,7 @@ body{
   }
 
 
-.start{
+.btn{
   border-radius: 20px;
   border-color: #FFFFFF;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -94,14 +94,14 @@ body{
   align-items: center;
   justify-content: center;
 }
-.start:hover {
+.btn:hover {
   background-color: rgb(44, 139, 12);
   color: 	#ffffff;
   cursor: pointer;
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .start:hover {
+  .btn:hover {
     background-color: rgb(178, 243, 157);
     color: 	#e0930d;
   }
