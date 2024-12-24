@@ -3,13 +3,24 @@ const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
 let start = document.querySelector('.start')
 let pathsLengths = {}
-let sizeFieldH = 450
-let sizeFieldW = 600
+let sizeFieldH = 600
+let sizeFieldW = 700
 start.addEventListener('click', startGame)
 
 window.addEventListener('DOMContentLoaded', function() {
   
 })
+
+
+function updateHeight() {
+  const fieldHeight = window.innerHeight * 0.8;
+  gameField.style.setProperty('--quarter-height', `${fieldHeight}px`);
+}
+
+updateHeight();
+window.addEventListener('resize', updateHeight);
+
+
 
 function fullScreen(element) {
   if (element.requestFullscreen) {

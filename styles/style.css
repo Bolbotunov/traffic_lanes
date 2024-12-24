@@ -1,6 +1,10 @@
 /* *{
     outline: 1px solid black;
 } */
+:root {
+  --field-height: calc(100vh / 4);
+}
+
 body{
     background-image: url(../assets/background.jpg);
     background-size: cover;
@@ -9,7 +13,7 @@ body{
     background-attachment: fixed;
     width: 100vw;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
     backdrop-filter: blur(3px);
     color: rgb(255, 255, 255);
     display: flex;
@@ -30,9 +34,9 @@ body{
   .field {
     width: 100%;
     flex: 1;
-    max-width: 600px;
+    max-width: 700px;
     height: auto;
-    max-height: 450px;
+    max-height: 600px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,7 +48,6 @@ body{
     position: relative;
     flex: 0.25;
     height: auto;
-    max-height: 450px;
     max-width: 150px;
     display: flex;
     align-items: center;
@@ -103,23 +106,28 @@ body{
   height: 100%;
 }
 
-@media (max-width: 768px) {
+
+
+/* @media (max-width: 768px) {
   .field {
     max-height: 320px;
     max-width: 320px;
   }
-}
+} */
 
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .field {
     max-height: 280px;
     max-width: 280px;
   }
-}
+} */
 
-@media only screen and (max-height: 600px) and (orientation: landscape) {
+@media only screen and (max-height: 500px) and (orientation: landscape) {
   .field {
-    max-height: 200px;
+    max-height: var(--quarter-height);
+  }
+  .container{
+    padding: 0px 20px 0px 20px;
   }
 }
 
