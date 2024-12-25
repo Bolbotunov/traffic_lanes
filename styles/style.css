@@ -66,13 +66,30 @@ body{
     justify-content: center;
     position: relative;
     width: 100%;
-   
+    top: 10px;
   }
   .evacuator-block-image {
-    width: 100%;
-    top: 10px;
+    width: 50px;
     position: absolute;
     z-index: 10;
+  }
+
+  .arrow{
+    position: absolute;
+    top: 5px;
+    display: none;
+  }
+
+
+  .moveArrow{
+    animation: animateArrow .8s infinite;
+  }
+  
+  
+  @keyframes animateArrow {
+    0% { transform: translate(0, 0px); }
+    50% { transform:  translate(0, 4px); }
+    100% { transform: translate(0, 8px); }
   }
 
 
@@ -115,7 +132,7 @@ body{
     filter: drop-shadow(2px 0px 2px yellow)
   }
 
-  svg{
+  .mainSVG {
   border-radius: 20px;
   border: 3px solid rgb(255, 255, 255);
   width: 100%;
@@ -221,6 +238,7 @@ body{
   position: relative;
   z-index: 20;
 }
+
 
 
 
