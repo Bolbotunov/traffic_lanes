@@ -139,6 +139,7 @@ let fieldSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 fieldSVG.style.backgroundColor = '#8fe577';
 fieldSVG.setAttribute('width', `${sizeFieldW}`);
 fieldSVG.setAttribute('height', `${sizeFieldH}`);
+fieldSVG.setAttribute('class', 'mainSVG');
 fieldSVG.setAttribute('viewBox', '0 50 870 690');
 fieldSVG.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 fieldSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -212,8 +213,8 @@ createMap()
 
 
 const roadPath = new Road(fieldSVG)
-roadPath.createPath('route1', 'M-80 410 L 870 410', 'black');
-roadPath.createPath('route2', 'M0 410 L 360 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
+roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
+roadPath.createPath('route2', 'M0 410 L 380 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
 roadPath.createPath('route3', 'M0 410 L 380 410 C 380 400, 455 445, 448 280 L 448 0', 'red');
 
 
@@ -230,7 +231,7 @@ roadPath.createPath('route10', 'M445 810 L 445 0', 'black');
 roadPath.createPath('route12', 'M445 810 L 445 490 C 455 430, 470 418, 480 410 L 870 410', 'green');
 roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L 0 385', 'red');
 
-
+// ============== ЛЕС ===================================
 class Trees {
   constructor(fieldSVG) {
     this.fieldSVG = fieldSVG;
@@ -268,14 +269,16 @@ let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
 let indicatorTime = 0;
-let waitingTime = 7
+let waitingTime = 8
 let newWaitingTime = 0
 let timeOfCrazyRide = 1
 let gameInterval;
 let cars = []
+let trafficLightsArray = [];
+let loadEvacuator = false
 
 class Auto {
-  constructor(route, typeCar, speed, IsTurns) {
+  constructor(route, typeCar, speed, IsTurns, crash) {
     this.route = route;
     this.typeCar = typeCar;
     this.rotateCar = 0
@@ -284,6 +287,7 @@ class Auto {
     this.originalSpeed = this.speed;
     this.IsTurns = IsTurns
     this.prevPoint = { x: 0, y: 0 };
+    this.crash = crash
   }
 
   createAuto() {
@@ -347,8 +351,6 @@ class Auto {
 
 
 const group = document.querySelector(`g[id="${this.route}"]`);
-const rects = group.querySelectorAll('rect');
-
 
     trafficLightsArray.forEach((tl) => {
       if (tl.routesControl.includes(car.id)) {
@@ -396,15 +398,20 @@ const rects = group.querySelectorAll('rect');
 
   })
 
-
+let countCollision
     cars.forEach(otherCar => {
       if (otherCar !== this && checkCollision(this, otherCar)) {
-        // let collapseCoordinatesX = this.clientX
-        // let collapseCoordinatesY = this.clientY
-        // console.log(collapseCoordinatesY)
+        this.crash = true
+        otherCar.crash = true
         this.speed = 0;
         otherCar.speed = 0;
+
+        trafficLightsArray.forEach((item) => {
+          item.trafficLightsOn = false
+          item.colorTrafficLights.setAttribute('fill', 'red');
+        })
       }
+
     });
 
     if (this.position < pathInfo.length) {
@@ -425,22 +432,7 @@ const rects = group.querySelectorAll('rect');
     }
   }
 }
-let rect1
-let rect2
-    function checkCollision(car1, car2) {
-  rect1 = car1.autoElement.getBoundingClientRect();
-  rect2 = car2.autoElement.getBoundingClientRect();
-  return (
-    rect1.left + 6 < rect2.right &&
-    rect1.right > rect2.left + 6 &&
-    rect1.top + 6 < rect2.bottom &&
-    rect1.bottom > rect2.top + 6
-  )
-}
 
-if(checkCollision) {
-  console.log(rect1, rect2)
-}
 
 // ===================Светофор==================================
 
@@ -463,6 +455,7 @@ class TrafficLights {
     colorTrafficLights.setAttribute("fill", "#24AB12");
     colorTrafficLights.setAttribute('id', `${this.id}`);
     colorTrafficLights.setAttribute("stroke", this.colorTrafficLights);
+    this.colorTrafficLights = colorTrafficLights;
 
     let icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("width", "20");
@@ -479,7 +472,6 @@ class TrafficLights {
         elapsedTimeTraffic = elapsedTime
         this.trafficLightsOn = false;
         colorTrafficLights.setAttribute('fill', 'red');
-        elapsedTimeTraffic = elapsedTime;
       } else {
         this.trafficLightsOn = true;
         colorTrafficLights.setAttribute('fill', '#24AB12');
@@ -490,7 +482,7 @@ class TrafficLights {
 }
 
 
-let trafficLightsArray = [];
+
 
 const TL1 = new TrafficLights('first', ['#route1', '#route2', '#route3'], ['270', '310', '350']);
 const TL2 = new TrafficLights('second', ['#route4', '#route5', '#route6'], ['270', '310', '350']);
@@ -503,11 +495,25 @@ TL4.createTrafficLights(464, 456);
 
 trafficLightsArray.push(TL1, TL2, TL3, TL4);
 
+
+// ======проверка столкновений=============
+
+let rect1
+let rect2
+    function checkCollision(car1, car2) {
+  rect1 = car1.autoElement.getBoundingClientRect();
+  rect2 = car2.autoElement.getBoundingClientRect();
+  return (
+    rect1.left + 6 < rect2.right &&
+    rect1.right > rect2.left + 6 &&
+    rect1.top + 6 < rect2.bottom &&
+    rect1.bottom > rect2.top + 6
+  )
+}
+
+
 let evacuatorCall = false
 let whereTurns
-
-
-
 
 
 roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
@@ -522,7 +528,7 @@ testCar.setAttribute('id', 'testCar');
 testCar.setAttribute('transform', 'translate(0, 0)');
 fieldSVG.appendChild(testCar);
 
-// ========================DRAG===============================
+// ======================== DRAG EVACUATOR ===============================
 
 let testCarPoint = document.getElementById('testCar')
 let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 1).createAuto();
@@ -531,15 +537,16 @@ let helpEvacuate = false;
 let evacuatorCarGroup = document.getElementById('#routeEvacuator');
 // let evacuatorCarImage = evacuatorCarGroup.querySelector('image');
 
-let evacuatorCarImage = document.querySelector('.evacuator-block-image');
+let evacuatorCarImage = document.querySelector('.evacuator-block');
 evacuatorCarImage.style.cursor = 'grab';
 
 let startX, startY, initialX = 0, initialY = 0;
+let relativeX
+let relativeY
 function handleStart(e) {
   e.preventDefault();
   let startTapX = e.touches ? e.touches[0].clientX : e.clientX
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY
-  console.log(startTapX)
   startX = startTapX - initialX;
   startY = startTapY - initialY;
   document.addEventListener('mousemove', moveFn);
@@ -549,25 +556,45 @@ function handleStart(e) {
 }
 
 
+let arrow = document.querySelector('.arrow')
 function moveFn(e) {
+  relativeX = (e.clientX / window.innerWidth) * 100;
+  relativeY = (e.clientY / window.innerHeight) * 100;
   evacuatorCarImage.style.cursor = 'grabbing';
   let startTapX = e.touches ? e.touches[0].clientX : e.clientX
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY
-
   let newX = startTapX - startX;
   let newY = startTapY - startY;
-
   initialX = newX;
   initialY = newY;
   evacuatorCarImage.style.transform = `translate(${newX}px, ${newY}px)`;
+
+  if (relativeX > 45 && relativeX < 55 && relativeY > 43 && relativeY < 53) {
+    arrow.style.display = 'initial'
+  } else {
+    arrow.style.display = 'none'
+  }
 }
 
-function handleEndFn() {
+function handleEndFn(e) {
+  if (arrow.style.display !== 'none') {
+    arrow.style.display = 'none';
+    cars.forEach(car => {
+      if (car.crash) {
+        car.autoElement.remove();
+      }
+    });
+    cars = cars.filter(car => car.crash !== true);
+    loadEvacuator = true;
+  }
+
+  
   evacuatorCarImage.style.cursor = 'grab';
   document.removeEventListener('mousemove', moveFn);
   document.removeEventListener('mouseup', handleEndFn);
   document.removeEventListener('touchmove', moveFn);
   document.removeEventListener('touchend', handleEndFn);
+  
 }
 
 evacuatorCarImage.addEventListener('mousedown', handleStart);
@@ -575,6 +602,7 @@ evacuatorCarImage.addEventListener('touchstart', handleStart);
 
 
 
+// =======облака=============
 
 let arrFogs = []
 class Fog {
@@ -611,11 +639,9 @@ class Fog {
 }
 let fogTimeLine = 0
 
-
-
 function startGame() {
   if (!gameInterval) {
-    fullScreen(document.documentElement);
+    // fullScreen(document.documentElement);
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
@@ -634,7 +660,7 @@ function gameTimer() {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.6, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.7)
+    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.7, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.8)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
@@ -665,9 +691,11 @@ arrFogs.forEach((item)=> item.fogMove())
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns).createAuto()
+    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns, false).createAuto()
     cars.push(newAuto);
     checkTime = elapsedTime;
     
   }
 }
+
+
