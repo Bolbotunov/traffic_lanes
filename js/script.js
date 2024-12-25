@@ -541,12 +541,13 @@ let evacuatorCarImage = document.querySelector('.evacuator-block');
 evacuatorCarImage.style.cursor = 'grab';
 
 let startX, startY, initialX = 0, initialY = 0;
-let relativeX
-let relativeY
+let relativeX;
+let relativeY;
+
 function handleStart(e) {
   e.preventDefault();
-  let startTapX = e.touches ? e.touches[0].clientX : e.clientX
-  let startTapY = e.touches ? e.touches[0].clientY : e.clientY
+  let startTapX = e.touches ? e.touches[0].clientX : e.clientX;
+  let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   startX = startTapX - initialX;
   startY = startTapY - initialY;
   document.addEventListener('mousemove', moveFn);
@@ -555,14 +556,16 @@ function handleStart(e) {
   document.addEventListener('touchend', handleEndFn);
 }
 
+let arrow = document.querySelector('.arrow');
 
-let arrow = document.querySelector('.arrow')
 function moveFn(e) {
-  relativeX = (e.clientX / window.innerWidth) * 100;
-  relativeY = (e.clientY / window.innerHeight) * 100;
+  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  relativeX = (clientX / window.innerWidth) * 100;
+  relativeY = (clientY / window.innerHeight) * 100;
   evacuatorCarImage.style.cursor = 'grabbing';
-  let startTapX = e.touches ? e.touches[0].clientX : e.clientX
-  let startTapY = e.touches ? e.touches[0].clientY : e.clientY
+  let startTapX = e.touches ? e.touches[0].clientX : e.clientX;
+  let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   let newX = startTapX - startX;
   let newY = startTapY - startY;
   initialX = newX;
@@ -570,9 +573,9 @@ function moveFn(e) {
   evacuatorCarImage.style.transform = `translate(${newX}px, ${newY}px)`;
 
   if (relativeX > 45 && relativeX < 55 && relativeY > 43 && relativeY < 53) {
-    arrow.style.display = 'initial'
+    arrow.style.display = 'initial';
   } else {
-    arrow.style.display = 'none'
+    arrow.style.display = 'none';
   }
 }
 
@@ -587,19 +590,14 @@ function handleEndFn(e) {
     cars = cars.filter(car => car.crash !== true);
     loadEvacuator = true;
   }
-
-  
-  evacuatorCarImage.style.cursor = 'grab';
   document.removeEventListener('mousemove', moveFn);
   document.removeEventListener('mouseup', handleEndFn);
   document.removeEventListener('touchmove', moveFn);
   document.removeEventListener('touchend', handleEndFn);
-  
 }
 
 evacuatorCarImage.addEventListener('mousedown', handleStart);
 evacuatorCarImage.addEventListener('touchstart', handleStart);
-
 
 
 // =======облака=============
