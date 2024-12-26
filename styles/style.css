@@ -5,6 +5,15 @@
   --field-height: 80vh;
 }
 
+.active-container{
+  display: flex;
+}
+.hidden-container {
+  display: none;
+}
+
+/* ==================================================== */
+
 body{
     background-image: url(../assets/background.jpg);
     background-size: cover;
@@ -21,8 +30,49 @@ body{
     justify-content: center;
 }
 
+.start-menu{
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #F8FF7B;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.start-menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 80vw;
+  height: 100vh;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33vw;
+  margin-bottom: 30px;
+  outline: none;
+  user-select: none;
+}
+.logo{
+  max-width: 100%;
+}
+
+.menu-btn-container{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  max-width: 100%;
+  width: 33vw;
+}
+
 .container {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-around;
     width: 100%;
@@ -30,6 +80,41 @@ body{
     gap: 10px;
     align-items: stretch;
   }
+
+  .menu-btn{
+    border-radius: 10px;
+    border: 2px solid #E9B828;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: 	#5c490e;
+    background-color: #D9D9D9;
+    transition: .5s all;
+    outline: none;
+    user-select: none;
+    width: 90%;
+    max-width: 50%;
+    height: auto;
+    font-size: calc(5px + 1vw);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+  }
+  .menu-btn:hover {
+    background-color: rgb(44, 139, 12);
+    color: 	#ffffff;
+    cursor: pointer;
+  }
+  
+  @media (hover: none) and (pointer: coarse) {
+    .menu-btn:hover {
+      background-color: rgb(178, 243, 157);
+      color: 	#e0930d;
+    }
+  }
+  
+
+
   
   .field {
     width: 100%;
@@ -91,38 +176,6 @@ body{
     50% { transform:  translate(0, 4px); }
     100% { transform: translate(0, 8px); }
   }
-
-
-.btn{
-  border-radius: 20px;
-  border-color: #FFFFFF;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  color: 	#e0930d;
-  background-color: rgb(178, 243, 157);
-  transition: .5s all;
-  outline: none;
-  user-select: none;
-  width: 90%;
-  max-width: 100px;
-  height: auto;
-  font-size: calc(7px + 1vw);
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.btn:hover {
-  background-color: rgb(44, 139, 12);
-  color: 	#ffffff;
-  cursor: pointer;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .btn:hover {
-    background-color: rgb(178, 243, 157);
-    color: 	#e0930d;
-  }
-}
 
 
   .blinker {
