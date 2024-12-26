@@ -8,6 +8,9 @@ let restart = document.querySelector('.restart')
 let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 700
+let timer = document.querySelector('.menu-timer')
+let timeFromStart = 0
+let night = document.querySelector('.layout')
 start.addEventListener('click', startGame)
 
 // restart.addEventListener('click', restartGame)
@@ -425,21 +428,25 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 
   })
 
-let countCollision
-    cars.forEach(otherCar => {
-      if (otherCar !== this && checkCollision(this, otherCar)) {
-        this.crash = true
-        otherCar.crash = true
-        this.speed = 0;
-        otherCar.speed = 0;
+  let countCollision;
+  cars.forEach(otherCar => {
+    if (otherCar !== this && checkCollision(this, otherCar)) {
+      this.crash = true;
+      otherCar.crash = true;
+      this.speed = 0;
+      otherCar.speed = 0;
+  
+      trafficLightsArray.forEach((item) => {
+        item.trafficLightsOn = false;
+        item.colorTrafficLights.setAttribute('fill', 'red');
+      });
 
-        trafficLightsArray.forEach((item) => {
-          item.trafficLightsOn = false
-          item.colorTrafficLights.setAttribute('fill', 'red');
-        })
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200])
       }
-
-    });
+    }
+  });
+  
 
     if (this.position < pathInfo.length) {
       this.position += this.speed * 0.5;
@@ -710,7 +717,8 @@ class Fog {
 
 }
 let fogTimeLine = 0
-
+let setOpacity = 0
+let newTime = 0
 function startGame() {
   if (!gameInterval) {
     // fullScreen(document.documentElement);
@@ -719,6 +727,8 @@ function startGame() {
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
+
+
 
 function gameTimer() {
   elapsedTime += 1 / 60;
@@ -734,17 +744,39 @@ function gameTimer() {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.7, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.8)
+    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.7, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.9)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
 
-    
 
 arrFogs.forEach((item)=> item.fogMove())
 
 
-  if (elapsedTime - checkTime >= 0.7) {
+function showTime() {
+  let gameTime = Math.floor(elapsedTime);
+  let minutes = Math.floor(gameTime / 60);
+  let seconds = gameTime % 60;
+  if (minutes < 10) minutes = '0' + minutes;
+  if (seconds < 10) seconds = '0' + seconds;
+
+  timer.innerHTML = `${minutes}:${seconds}`
+}
+showTime() 
+
+
+// function darkening() {
+//   if (elapsedTime - newTime > 3) {
+//     setOpacity += 0.1
+//     night.style.opacity = `${setOpacity}`
+//     newTime = elapsedTime
+//   }
+//   return setOpacity
+// }
+
+// darkening()
+
+  if (elapsedTime - checkTime >= 0.8) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
     let randomRoute = Math.floor(Math.random() * 12) + 1;
     const toStreight = 'streight'
@@ -771,5 +803,3 @@ arrFogs.forEach((item)=> item.fogMove())
     
   }
 }
-
-
