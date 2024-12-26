@@ -9,6 +9,7 @@ let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 700
 start.addEventListener('click', startGame)
+
 // restart.addEventListener('click', restartGame)
 
 function restartGame() {
@@ -60,10 +61,6 @@ function handleResize() {
 getViewportSize();
 
 window.addEventListener('resize', handleResize);
-
-
-
-
 
 class Road {
   constructor(fieldSVG, offsetX = 0, offsetY = 0, angle) {
@@ -132,13 +129,13 @@ class Road {
   }
   drawPlatform() {
     this.createRect('62.311', '75.9492', '21', '80.0999', 'rotate(-141.176 62.311 75.9492)', '#D4BC74');
-    this.createRect('-2.46187', '89.9216', '51.3934', '60.3702', 'rotate(-51.0494 -2.46187 89.9216)', '#E5AE09', 'activeArea');
+    // this.createRect('-2.46187', '89.9216', '51.3934', '60.3702', 'rotate(-51.0494 -2.46187 89.9216)', '#E5AE09', 'activeArea');
   }
   
 }
 
 let fieldSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-fieldSVG.style.backgroundColor = '#8fe577';
+fieldSVG.style.backgroundImage = 'url(assets/t1.png)';
 fieldSVG.setAttribute('width', `${sizeFieldW}`);
 fieldSVG.setAttribute('height', `${sizeFieldH}`);
 fieldSVG.setAttribute('class', 'mainSVG');
@@ -146,33 +143,91 @@ fieldSVG.setAttribute('viewBox', '0 50 870 690');
 fieldSVG.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 fieldSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 fieldSVG.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-fieldSVG.style.width = '100%'
-fieldSVG.style.height = '100%'
+fieldSVG.style.width = '100%';
+fieldSVG.style.height = '100%';
 gameField.appendChild(fieldSVG);
 
 
+// ======== Песок ==============
 
-// let fog = document.createElementNS("http://www.w3.org/2000/svg", "g");
-// fog.setAttribute('width', `${sizeFieldW}`);
-// fog.setAttribute('height', `${sizeFieldH}`);
-// fog.setAttribute('viewBox', '0 50 870 690');
+class Sand {
+  constructor(fieldSVG) {
+    this.fieldSVG = fieldSVG;
+  }
+  createSand(x, y, width, height) {
+    const sand = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    sand.setAttribute('href', 'assets/sand.png');
+    sand.setAttribute('width', width);
+    sand.setAttribute('height', height);
+
+    const sandGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    sandGroup.setAttribute('class', 'sand');
+    sandGroup.setAttribute('transform', `translate(${x}, ${y})`);
+    sandGroup.appendChild(sand);
+    this.fieldSVG.appendChild(sandGroup);
+  }
+}
+
+let sandInstance = new Sand(fieldSVG);
+sandInstance.createSand(0, 0, 400, 400)
+sandInstance.createSand(400, 0, 400, 400);
+sandInstance.createSand(550, 400, 280, 300);
+sandInstance.createSand(150, 570, 250, 300);
+
+
+// =================== ДОМА =============================
+
+class House {
+  constructor(fieldSVG) {
+    this.fieldSVG = fieldSVG;
+  }
+  createHouse(x, y, typeHouse) {
+    const houseGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    houseGroup.setAttribute('transform', `translate(${x}, ${y})`);
+    const house = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    house.setAttribute('href', `assets/house${typeHouse}.png`);
+    house.setAttribute('width', '100');
+    house.setAttribute('height', '100');
+    houseGroup.appendChild(house);
+    fieldSVG.appendChild(houseGroup);
+    return houseGroup
+  }
+  fillMapHouses(houses) {
+    houses.forEach((house) => {
+      this.createHouse(house.x, house.y, house.typeHouse, fieldSVG)
+    })
+  }
+}
+
+const houses1 = [
+  {x: 500, y: 30, typeHouse: '1'},
+  {x: 500, y: 130, typeHouse: '3'},
+  {x: 500, y: 230, typeHouse: '2'},
+  {x: 650, y: 30, typeHouse: '2'},
+  {x: 650, y: 130, typeHouse: '1'},
+  {x: 650, y: 230, typeHouse: '3'},
+]
+
+const houses2 = [
+  {x: 500, y: 430, typeHouse: '2'},
+  {x: 570, y: 530, typeHouse: '3'},
+  {x: 500, y: 630, typeHouse: '1'},
+  {x: 700, y: 480, typeHouse: '3'},
+  {x: 700, y: 630, typeHouse: '2'},
+]
+
+const houses3 = [
+  {x: 280, y: 550, typeHouse: '2'},
+  {x: 280, y: 660, typeHouse: '1'},
+]
 
 
 
-// fieldSVG.addEventListener('click', function(e) {
-//   console.log(`${e.pageX}, ${e.pageY}`)
-//   let topPos = e.target.getBoundingClientRect().top
-//   let leftPos = e.target.getBoundingClientRect().left
-//   // let currentPosY = e.pageY - topPos
-//   console.log(leftPos)
-//   console.log(topPos)
-//   // let currentPosX = e.pageX - leftPos
 
-//   // 210x   -  280x
-//   // 310y   - 380y
-//   //roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
-// })
-
+let houseSample = new House(fieldSVG)
+let createHouses1 =  houseSample.fillMapHouses(houses1);
+let createHouses2 =  houseSample.fillMapHouses(houses2);
+let createHouses3 =  houseSample.fillMapHouses(houses3);
 
 
 function createMap() {
@@ -233,36 +288,6 @@ roadPath.createPath('route10', 'M445 810 L 445 0', 'black');
 roadPath.createPath('route12', 'M445 810 L 445 490 C 455 430, 470 418, 480 410 L 870 410', 'green');
 roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L 0 385', 'red');
 
-// ============== ЛЕС ===================================
-class Trees {
-  constructor(fieldSVG) {
-    this.fieldSVG = fieldSVG;
-  }
-
-  createTree(x, y, randomTree,randomMotion) {
-    const trees = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    trees.setAttribute('href', `assets/tree${randomTree}.png`);
-    trees.setAttribute('width', '100');
-    trees.setAttribute('height', '100');
-    trees.setAttribute('class', `motionTrees${randomMotion}`);
-    const treesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    treesGroup.setAttribute('transform', `translate(${x}, ${y})`);
-    treesGroup.appendChild(trees);
-    this.fieldSVG.appendChild(treesGroup);
-  }
-  createForest() {
-    for (let i = 0; i < 50; i++) {
-      let randomMotion = Math.floor(Math.random() * 3) + 1;
-      let randomTree = Math.floor(Math.random() * 4) + 1;
-      let randomTreeX = Math.floor(Math.random() * 65) * 5;
-      let randomTreeY = Math.floor(Math.random() * 55) * 5;
-      this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
-    }
-  }
-}
-
-let createTree = new Trees(fieldSVG);
-createTree.createForest();
 
 // ================Машинки=================================
 
@@ -525,10 +550,58 @@ testCar.setAttribute('href', 'assets/car1.png');
 testCar.setAttribute('width', '30');
 testCar.setAttribute('x', '460');
 testCar.setAttribute('y', '25');
-testCar.setAttribute('height', '15');
+testCar.setAttribute('height', '30');
 testCar.setAttribute('id', 'testCar');
 testCar.setAttribute('transform', 'translate(0, 0)');
 fieldSVG.appendChild(testCar);
+
+
+// ============== ЛЕС ===================================
+class Trees {
+  constructor(fieldSVG) {
+    this.fieldSVG = fieldSVG;
+  }
+
+  createTree(x, y, randomTree, randomMotion) {
+    const trees = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    trees.setAttribute('href', `assets/tree${randomTree}.png`);
+    trees.setAttribute('width', '100');
+    trees.setAttribute('height', '100');
+    trees.setAttribute('class', `motionTrees${randomMotion}`);
+    const treesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    treesGroup.setAttribute('transform', `translate(${x}, ${y})`);
+    treesGroup.appendChild(trees);
+    this.fieldSVG.appendChild(treesGroup);
+  }
+  createForest(count, startCoordinatesX, finishCoordinatesX, startCoordinatesY, finishCoordinatesY, step) {
+    for (let i = 0; i < count; i++) {
+      let randomMotion = Math.floor(Math.random() * 3) + 1;
+      let randomTree = Math.floor(Math.random() * 4) + 1;
+      let randomTreeX = Math.floor(Math.random() * ((finishCoordinatesX - startCoordinatesX / step) + 1)) + startCoordinatesX
+      let randomTreeY = Math.floor(Math.random() * ((finishCoordinatesY - startCoordinatesY / step) + 1)) + startCoordinatesY
+      this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
+    }
+  }
+}
+
+let createTree = new Trees(fieldSVG);
+createTree.createForest(50, 5, 320, 5, 275, 5);
+createTree.createForest(1, 750, 755, 5, 10, 1);
+createTree.createForest(1, 750, 755, 55, 60, 1);
+createTree.createForest(1, 750, 755, 105, 110, 1);
+createTree.createForest(1, 750, 755, 155, 160, 1);
+createTree.createForest(1, 750, 755, 205, 210, 1);
+createTree.createForest(1, 750, 755, 255, 260, 1);
+createTree.createForest(1, 550, 555, 255, 260, 1);
+createTree.createForest(1, 550, 555, 100, 105, 1);
+createTree.createForest(1, 550, 555, 600, 605, 1);
+createTree.createForest(1, 550, 555, 475, 480, 1);
+createTree.createForest(1, 625, 630, 475, 480, 1);
+createTree.createForest(1, 680, 685, 525, 530, 1);
+createTree.createForest(1, 450, 455, 535, 540, 1);
+createTree.createForest(25, 0, 210, 400, 451, 5);
+
+
 
 // ======================== DRAG EVACUATOR ===============================
 
@@ -601,7 +674,6 @@ function handleEndFn(e) {
 evacuatorCarImage.addEventListener('mousedown', handleStart);
 evacuatorCarImage.addEventListener('touchstart', handleStart);
 
-
 // =======облака=============
 
 let arrFogs = []
@@ -641,9 +713,9 @@ let fogTimeLine = 0
 
 function startGame() {
   if (!gameInterval) {
-    fullScreen(document.documentElement);
-    gameContainer.style.display = 'flex'
-    startMenu.style.display = 'none'
+    // fullScreen(document.documentElement);
+    // gameContainer.style.display = 'flex'
+    // startMenu.style.display = 'none'
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
@@ -658,7 +730,7 @@ function gameTimer() {
     evacuator.move()
   }
 
-  if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 2) {
+  if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
     let randomY= Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
