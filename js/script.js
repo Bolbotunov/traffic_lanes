@@ -444,6 +444,12 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200])
       }
+      if ("vibrate" in navigator) {
+        console.log("Vibration API supported");
+      } else {
+        console.log("Vibration API not supported");
+      }
+      
     }
   });
   
@@ -724,6 +730,9 @@ function startGame() {
     fullScreen(document.documentElement);
     gameContainer.style.display = 'flex'
     startMenu.style.display = 'none'
+          if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200])
+      }
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
@@ -803,3 +812,5 @@ showTime()
     
   }
 }
+
+
