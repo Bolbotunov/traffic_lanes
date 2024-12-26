@@ -1,13 +1,15 @@
 const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
-let start = document.querySelector('.start')
+let start = document.querySelector('.start-btn')
+let gameContainer = document.querySelector('.container')
+let startMenu = document.querySelector('.start-menu')
 let restart = document.querySelector('.restart')
 let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 700
 start.addEventListener('click', startGame)
-restart.addEventListener('click', restartGame)
+// restart.addEventListener('click', restartGame)
 
 function restartGame() {
   location.reload();
@@ -639,7 +641,9 @@ let fogTimeLine = 0
 
 function startGame() {
   if (!gameInterval) {
-    // fullScreen(document.documentElement);
+    fullScreen(document.documentElement);
+    gameContainer.style.display = 'flex'
+    startMenu.style.display = 'none'
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
