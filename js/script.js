@@ -721,9 +721,9 @@ let setOpacity = 0
 let newTime = 0
 function startGame() {
   if (!gameInterval) {
-    // fullScreen(document.documentElement);
-    // gameContainer.style.display = 'flex'
-    // startMenu.style.display = 'none'
+    fullScreen(document.documentElement);
+    gameContainer.style.display = 'flex'
+    startMenu.style.display = 'none'
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
