@@ -5,12 +5,28 @@ let start = document.querySelector('.start-btn')
 let gameContainer = document.querySelector('.container')
 let startMenu = document.querySelector('.start-menu')
 let restart = document.querySelector('.restart')
+let evacuateBtn = document.querySelector('.evacuate-btn')
+let leftNav = document.querySelector('.left-navigation')
+let rightNav = document.querySelector('.right-navigation')
 let pathsLengths = {}
 let sizeFieldH = 600
 let sizeFieldW = 700
 let timer = document.querySelector('.menu-timer')
 let timeFromStart = 0
 let night = document.querySelector('.layout')
+let gameOrientation = window.screen.orientation;
+let warningOrientation = document.querySelector('.orientation-warning')
+console.log(gameOrientation)
+
+if (gameOrientation.type === 'portrait-primary') {
+  warningOrientation.style.display = 'none'
+  startMenu.style.display = 'flex'
+} 
+
+// else if (gameOrientation.type === 'portrait-primary' && gameInterval) {
+//   warningOrientation.style.display = 'flex'
+// }
+
 start.addEventListener('click', startGame)
 
 // restart.addEventListener('click', restartGame)
@@ -20,13 +36,10 @@ function restartGame() {
   fullScreen(document.documentElement);
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-  
-})
 
 
 function updateHeight() {
-  const fieldHeight = window.innerHeight * 0.8;
+  const fieldHeight = window.innerHeight * 0.75;
   gameField.style.setProperty('--field-height', `${fieldHeight}px`);
 }
 
@@ -62,7 +75,6 @@ function handleResize() {
 }
 
 getViewportSize();
-
 window.addEventListener('resize', handleResize);
 
 class Road {
@@ -130,10 +142,10 @@ class Road {
     this.createRect("58", "9", "4", "22", "rotate(-90 58 9)", "white");
     this.createRect("82", "155", "4", "22", "rotate(-90 82 155)", "white");
   }
-  drawPlatform() {
-    this.createRect('62.311', '75.9492', '21', '80.0999', 'rotate(-141.176 62.311 75.9492)', '#D4BC74');
-    // this.createRect('-2.46187', '89.9216', '51.3934', '60.3702', 'rotate(-51.0494 -2.46187 89.9216)', '#E5AE09', 'activeArea');
-  }
+  // drawPlatform() {
+  //   this.createRect('62.311', '75.9492', '21', '80.0999', 'rotate(-141.176 62.311 75.9492)', '#D4BC74');
+  //   this.createRect('-2.46187', '89.9216', '51.3934', '60.3702', 'rotate(-51.0494 -2.46187 89.9216)', '#E5AE09', 'activeArea');
+  // }
   
 }
 
@@ -222,9 +234,8 @@ const houses2 = [
 const houses3 = [
   {x: 280, y: 550, typeHouse: '2'},
   {x: 280, y: 660, typeHouse: '1'},
+  {x: 280, y: 440, typeHouse: '3'},
 ]
-
-
 
 
 let houseSample = new House(fieldSVG)
@@ -266,8 +277,8 @@ function createMap() {
   }
   offsetX = 294
   offsetY = 419
-  const evacuatePlatform = new Road(fieldSVG, offsetX, offsetY, 5)
-  evacuatePlatform.drawPlatform()
+  // const evacuatePlatform = new Road(fieldSVG, offsetX, offsetY, 5)
+  // evacuatePlatform.drawPlatform()
 }
 createMap()
 
@@ -299,13 +310,15 @@ let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
 let indicatorTime = 0;
-let waitingTime = 8
+let waitingTime = 10
 let newWaitingTime = 0
 let timeOfCrazyRide = 1
 let gameInterval;
 let cars = []
 let trafficLightsArray = [];
 let loadEvacuator = false
+let loadingEvacuator = false
+
 
 class Auto {
   constructor(route, typeCar, speed, IsTurns, crash) {
@@ -428,7 +441,6 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 
   })
 
-  let countCollision;
   cars.forEach(otherCar => {
     if (otherCar !== this && checkCollision(this, otherCar)) {
       this.crash = true;
@@ -437,19 +449,12 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       otherCar.speed = 0;
   
       trafficLightsArray.forEach((item) => {
-        item.trafficLightsOn = false;
-        item.colorTrafficLights.setAttribute('fill', 'red');
+        item.setRed();
       });
-
+  
       if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200])
+        navigator.vibrate([200, 100, 200]);
       }
-      if ("vibrate" in navigator) {
-        console.log("Vibration API supported");
-      } else {
-        console.log("Vibration API not supported");
-      }
-      
     }
   });
   
@@ -476,14 +481,22 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 
 // ===================Светофор==================================
 
+let trafficLightsState = {
+  first: true,
+  second: true,
+  third: true,
+  fourth: true
+};
+
+let greenColor = '#98FB98'
 class TrafficLights {
-  constructor(id, routesControl, stopAreaPosition) {
-    this.id = id;
-    this.colorTrafficLights = '#24AB12';
-    this.trafficLightsOn = true;
+  constructor(setClass, routesControl, stopAreaPosition) {
+    this.setClass = setClass;
+    this.colorTrafficLights = greenColor;
+    this.trafficLightsOn = trafficLightsState[this.setClass];
     this.routesControl = routesControl;
     this.stopAreaPosition = stopAreaPosition;
-    this.routeStopped = {}
+    this.routeStopped = {};
   }
 
   createTrafficLights(coordinatesX, coordinatesY) {
@@ -492,9 +505,9 @@ class TrafficLights {
 
     let colorTrafficLights = document.createElementNS("http://www.w3.org/2000/svg", "path");
     colorTrafficLights.setAttribute("d", "M24.5 12.5C24.5 19.1274 19.1274 24.5 12.5 24.5C5.87258 24.5 0.5 19.1274 0.5 12.5C0.5 5.87258 5.87258 0.5 12.5 0.5C19.1274 0.5 24.5 5.87258 24.5 12.5Z");
-    colorTrafficLights.setAttribute("fill", "#24AB12");
-    colorTrafficLights.setAttribute('id', `${this.id}`);
-    colorTrafficLights.setAttribute("stroke", this.colorTrafficLights);
+    colorTrafficLights.setAttribute("fill", this.trafficLightsOn ? greenColor : "red");
+    colorTrafficLights.setAttribute('class', `${this.setClass}`);
+    colorTrafficLights.setAttribute("stroke", this.trafficLightsOn ? greenColor : 'red');
     this.colorTrafficLights = colorTrafficLights;
 
     let icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -508,32 +521,79 @@ class TrafficLights {
     fieldSVG.appendChild(trafficLightsSVG);
 
     colorTrafficLights.addEventListener('click', () => {
-      if (this.trafficLightsOn) {
-        elapsedTimeTraffic = elapsedTime
-        this.trafficLightsOn = false;
-        colorTrafficLights.setAttribute('fill', 'red');
-      } else {
-        this.trafficLightsOn = true;
-        colorTrafficLights.setAttribute('fill', '#24AB12');
+      this.toggleTrafficLights();
+      this.updateDivTrafficLights();
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200])
       }
+      elapsedTimeTraffic = elapsedTime
     });
+
     return colorTrafficLights;
+  }
+
+  toggleTrafficLights() {
+    this.trafficLightsOn = !this.trafficLightsOn;
+    trafficLightsState[this.setClass] = this.trafficLightsOn;
+    this.colorTrafficLights.setAttribute('fill', this.trafficLightsOn ? greenColor : 'red');
+    this.updateDivTrafficLights();
+  }
+
+  updateDivTrafficLights() {
+    document.querySelectorAll(`.${this.setClass}`).forEach(light => {
+      light.style.backgroundColor = this.trafficLightsOn ? greenColor : 'red';
+    });
+  }
+
+  setRed() {
+    this.trafficLightsOn = false;
+    trafficLightsState[this.setClass] = this.trafficLightsOn;
+    this.colorTrafficLights.setAttribute('fill', 'red');
+    this.updateDivTrafficLights();
   }
 }
 
 
-
-
-const TL1 = new TrafficLights('first', ['#route1', '#route2', '#route3'], ['270', '310', '350']);
-const TL2 = new TrafficLights('second', ['#route4', '#route5', '#route6'], ['270', '310', '350']);
-const TL3 = new TrafficLights('third', ['#route7', '#route8', '#route9'], ['230', '270', '310'])
-const TL4 = new TrafficLights('forth', ['#route10', '#route11', '#route12'], ['250', '290', '340'])
-TL1.createTrafficLights(353, 424);
-TL2.createTrafficLights(499, 348);
-TL3.createTrafficLights(388, 312);
+const TL2 = new TrafficLights('second', ['#route1', '#route2', '#route3'], ['270', '310', '350']);
+const TL3 = new TrafficLights('third', ['#route4', '#route5', '#route6'], ['270', '310', '350']);
+const TL1 = new TrafficLights('first', ['#route7', '#route8', '#route9'], ['230', '270', '310']);
+const TL4 = new TrafficLights('fourth', ['#route10', '#route11', '#route12'], ['250', '290', '340']);
+TL2.createTrafficLights(353, 424);
+TL3.createTrafficLights(499, 348);
+TL1.createTrafficLights(388, 312);
 TL4.createTrafficLights(464, 456);
 
 trafficLightsArray.push(TL1, TL2, TL3, TL4);
+
+function createDivTrafficLight(id, className, text) {
+  let divTrafficLight = document.createElement('div');
+  divTrafficLight.id = id;
+  divTrafficLight.classList.add(className, 'duplicate');
+  divTrafficLight.style.backgroundColor = trafficLightsState[className] ? greenColor : 'red';
+  divTrafficLight.style.color = '#5c490e';
+  divTrafficLight.style.userSelect = 'none';
+  divTrafficLight.style.outline = 'none';
+  divTrafficLight.innerHTML = text;
+  divTrafficLight.addEventListener('click', () => {
+    trafficLightsArray.forEach(tl => {
+      if (tl.setClass === className) {
+        tl.toggleTrafficLights();
+        tl.updateDivTrafficLights();
+      }
+    });
+  });
+
+  if (divTrafficLight.classList.contains('first') || divTrafficLight.classList.contains('second')) {
+    leftNav.appendChild(divTrafficLight);
+  } else {
+    rightNav.appendChild(divTrafficLight);
+  }
+}
+
+createDivTrafficLight('first', 'first', 1);
+createDivTrafficLight('second', 'second', 2);
+createDivTrafficLight('third', 'third', 3);
+createDivTrafficLight('fourth', 'fourth', 4);
 
 
 // ======проверка столкновений=============
@@ -552,23 +612,7 @@ let rect2
 }
 
 
-let evacuatorCall = false
 let whereTurns
-
-
-roadPath.createPath('routeEvacuator', 'M315 520 L 460 370', 'black');
-
-const testCar = document.createElementNS("http://www.w3.org/2000/svg", "image");
-testCar.setAttribute('href', 'assets/car1.png');
-testCar.setAttribute('width', '30');
-testCar.setAttribute('x', '460');
-testCar.setAttribute('y', '25');
-testCar.setAttribute('height', '30');
-testCar.setAttribute('id', 'testCar');
-testCar.setAttribute('transform', 'translate(0, 0)');
-fieldSVG.appendChild(testCar);
-
-
 // ============== ЛЕС ===================================
 class Trees {
   constructor(fieldSVG) {
@@ -618,13 +662,9 @@ createTree.createForest(25, 0, 210, 400, 451, 5);
 
 // ======================== DRAG EVACUATOR ===============================
 
-let testCarPoint = document.getElementById('testCar')
-let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 1).createAuto();
-evacuator.move();
-let helpEvacuate = false;
-let evacuatorCarGroup = document.getElementById('#routeEvacuator');
-// let evacuatorCarImage = evacuatorCarGroup.querySelector('image');
-
+// let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 3).createAuto();
+// let evacuatorCarGroup = document.getElementById('#routeEvacuator');
+// roadPath.createPath('routeEvacuator', 'M315 520 L 430 400', 'black');
 let evacuatorCarImage = document.querySelector('.evacuator-block');
 evacuatorCarImage.style.cursor = 'grab';
 
@@ -638,6 +678,7 @@ function handleStart(e) {
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   startX = startTapX - initialX;
   startY = startTapY - initialY;
+
   document.addEventListener('mousemove', moveFn);
   document.addEventListener('mouseup', handleEndFn);
   document.addEventListener('touchmove', moveFn);
@@ -645,6 +686,8 @@ function handleStart(e) {
 }
 
 let arrow = document.querySelector('.arrow');
+let backTimer = document.querySelector('.backTimer');
+let backTimerFill = document.querySelector('.backTimer span');
 
 function moveFn(e) {
   let clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -668,26 +711,47 @@ function moveFn(e) {
 }
 
 function handleEndFn(e) {
-  if (arrow.style.display !== 'none') {
-    arrow.style.display = 'none';
-    cars.forEach(car => {
-      if (car.crash) {
-        car.autoElement.remove();
-      }
-    });
-    cars = cars.filter(car => car.crash !== true);
-    loadEvacuator = true;
+  if (relativeX > 45 && relativeX < 55 && relativeY > 43 && relativeY < 53) {
+    if (arrow.style.display !== 'none') {
+      arrow.style.display = 'none';
+      evacuatorCarImage.style.cursor = 'grab';
+      loadEvacuator = true;
+    }
+    document.removeEventListener('mousemove', moveFn);
+    document.removeEventListener('mouseup', handleEndFn);
+    document.removeEventListener('touchmove', moveFn);
+    document.removeEventListener('touchend', handleEndFn);
+  } else {
+    document.addEventListener('mousemove', moveFn);
+    document.addEventListener('touchmove', moveFn);
   }
-  document.removeEventListener('mousemove', moveFn);
-  document.removeEventListener('mouseup', handleEndFn);
-  document.removeEventListener('touchmove', moveFn);
-  document.removeEventListener('touchend', handleEndFn);
+  
 }
 
-evacuatorCarImage.addEventListener('mousedown', handleStart);
-evacuatorCarImage.addEventListener('touchstart', handleStart);
+function resetPosition() {
+  initialX = 0;
+  initialY = 0;
+  evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
+  backTimer.style.display = 'none'
+  cars.forEach(car => {
+    if (car.crash) {
+      car.autoElement.remove();
+    }
+  });
+  cars = cars.filter(car => car.crash !== true);
+}
 
-// =======облака=============
+
+function evacuateCars() {
+  loadingEvacuator = true
+  backTimer.style.display = 'flex'
+  backTimerFill.style.animation = 'fillTimer 2500ms forwards';
+  backTimerFill.classList.add = 'fill-timer'
+  setTimeout(resetPosition, 2500)
+}
+
+
+// ======= Облака =============
 
 let arrFogs = []
 class Fog {
@@ -730,9 +794,6 @@ function startGame() {
     fullScreen(document.documentElement);
     gameContainer.style.display = 'flex'
     startMenu.style.display = 'none'
-          if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200])
-      }
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
@@ -745,12 +806,11 @@ function gameTimer() {
   cars.forEach(car => {
     car.move()
   });
-  if (evacuatorCall) {
-    evacuator.move()
-  }
+
+
 
   if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
-    let randomY= Math.floor(Math.random() * 300);
+    let randomY = Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
     let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.7, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.9)
@@ -760,6 +820,14 @@ function gameTimer() {
 
 
 arrFogs.forEach((item)=> item.fogMove())
+
+
+
+evacuatorCarImage.addEventListener('mousedown', handleStart);
+evacuatorCarImage.addEventListener('touchstart', handleStart);
+  if (loadEvacuator) {
+    evacuateBtn.addEventListener('click', evacuateCars);
+  }
 
 
 function showTime() {
@@ -785,7 +853,7 @@ showTime()
 
 // darkening()
 
-  if (elapsedTime - checkTime >= 0.8) {
+  if (elapsedTime - checkTime >= 1) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
     let randomRoute = Math.floor(Math.random() * 12) + 1;
     const toStreight = 'streight'
