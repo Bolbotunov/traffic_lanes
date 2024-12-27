@@ -34,8 +34,8 @@ body{
   width: 100vw;
   min-height: 100vh;
   position: absolute;
-  /* display: flex; */
-  display: none;
+  display: flex;
+  /* display: none; */
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -72,14 +72,15 @@ body{
 }
 
 .container {
-    /* display: none; */
-    display: flex;
+    display: none;
+    /* display: flex; */
     align-items: center;
     justify-content: space-around;
     width: 100%;
     max-width: 1080px;
     gap: 10px;
     align-items: stretch;
+    transition: .5s all;
   }
 
 .layout{
@@ -99,10 +100,10 @@ body{
 
   .menu-btn{
     border-radius: 10px;
-    border: 2px solid #E9B828;
+    border: 2px solid #ffffff;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     color: 	#5c490e;
-    background-color: #D9D9D9;
+    background-color: #daf2b5;
     transition: .5s all;
     outline: none;
     user-select: none;
@@ -118,12 +119,12 @@ body{
     
   }
   .menu-btn:hover {
-    background-color: rgb(44, 139, 12);
+    background-color: rgb(184, 167, 11);
     color: 	#ffffff;
     cursor: pointer;
   }
 
-  .tl-btn {
+  .duplicate {
     border-radius: 50%;
     border: 2px solid white;
     width: 50px;
@@ -131,15 +132,14 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: green;
+    background-color: greenColor;
     transition: .5s all;
     cursor: pointer;
     
   }
 
-  .tl-btn:hover {
-    background-color: #FFFFFF;
-    color: green;
+  .duplicate:hover {
+    border: 2px solid #98FB98
   }
 
 
@@ -157,10 +157,11 @@ body{
   
 
 .menu-timer{
-  height: 50px;
+  height: 0px;
   width: 90%;
   text-align: center;
   margin-top: 10px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
   
   .field {
@@ -284,7 +285,7 @@ body{
 
 @media only screen and (max-height: 900px) and (orientation: landscape) {
   .field {
-    max-height: var(--field-height-iPhone);
+    max-height: var(--field-height);
   }
   .container{
     padding: 0px 20px 0px 20px;
@@ -298,12 +299,7 @@ body{
   }
 
 
-
-
-
-  @media only screen and (max-width: 600px) and (orientation: portrait)
-  /* only screen and (max-width: 800px) and (orientation: landscape)  */
-   {
+  @media only screen and (max-width: 600px) and (orientation: portrait) {
     .orientation-warning {
       display: block;
       text-align: center;
@@ -366,62 +362,3 @@ body{
     75% { transform: scale(0.99) rotate(-2deg); }
     100% { transform: scale(1) rotate(0deg); }
   }
-  
-  
-#activeArea{
-  position: relative;
-  z-index: 20;
-}
-
-
-
-
-
-
-  /* .img-container {
-    width: 50px; 
-    height: 50px;
-    position: absolute;
-    background: url('../assets/treesSpriteTest.png') 0 0 no-repeat;
-    background-size: cover;
-    animation: spriteAnimationTree 1s steps(7) infinite;
-    top: 0;
-    left: 0;
-  }
-  
-  
-  @keyframes spriteAnimationTree {
-      from { background: url('../assets/treesSpriteTest.png') 0 0; }
-      to { background: url('../assets/treesSpriteTest.png') 0 -145px; }
-  }
-   */
-
-/* 
-   .img-container {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    background: url('../assets/treesSpriteTest.png') no-repeat;
-    background-size: 50px 200px;
-    animation: spriteAnimationTree 1s steps(2) infinite;
-    top: 0;
-    left: 0;
-  } */
-  
-  /* @keyframes spriteAnimationTree {
-    0% { background-position: 0 0; }
-    25% { background-position: 0 -65px; }
-    50% { background-position: 0 -130px; }
-    75% { background-position: 0 -65px; }
-    100% { background-position: 0 -145px; }
-  }
-   */
-
-
-  
-  /* @keyframes motionTree {
-    0% { transform: translateY(-12px); }
-    50% { transform: translateY(-276px); }
-    100% { transform: translateY(-12px); }
-  }
-   */
