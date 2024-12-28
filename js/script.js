@@ -804,7 +804,6 @@ function evacuateCars() {
 
 // ======= ЖЕСТЫ ==============
 
-
 let touchStartX = 0;
 let touchStartY = 0;
 let touchEndX = 0;
@@ -812,17 +811,50 @@ let touchEndY = 0;
 let touchPoints = [];
 
 
-if (evacuatorCarImage) {
-  evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-} else {
-  console.log('Элемент .evacuator-block не найден');
-}
-
 function handleTouchStart(e) {
-  console.log('начало касания');
+  touchPoints = [];
+  let touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchPoints.push({ x: touchStartX, y: touchStartY });
 }
 
+function handleTouchMove(e) {
+  let touch = e.touches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+  touchPoints.push({ x: touchEndX, y: touchEndY });
+}
 
+function handleTouchEnd() {
+  if (isSwipeRightToLeft(touchPoints)) {
+    moveCarToTarget();
+  }
+}
+
+function isSwipeRightToLeft(points) {
+  if (points.length < 2) {
+    return false;
+  }
+
+  let dx = points[points.length - 1].x - points[0].x;
+  let dy = points[points.length - 1].y - points[0].y;
+
+  // Проверка на горизонтальный свайп справа налево, покрывающий более половины ширины экрана
+  return dx < 0 && Math.abs(dx) > window.innerWidth / 2 && Math.abs(dx) > Math.abs(dy);
+}
+
+function moveCarToTarget() {
+
+  let targetX = 100;
+  let targetY = 100;
+  evacuatorCarImage.style.transform = `translate(${targetX}px, ${targetY}px)`;
+  console.log('жест')
+}
+
+evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
 
 
 
