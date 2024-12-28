@@ -16,7 +16,55 @@ let timeFromStart = 0
 let night = document.querySelector('.layout')
 let gameOrientation = window.screen.orientation;
 let warningOrientation = document.querySelector('.orientation-warning')
-console.log(gameOrientation)
+
+// console.log(gameOrientation)
+
+const backgroundMusic = new Audio('assets/mainTrack1.mp3');
+const backgroundTraffic = new Audio('assets/traffic.mp3');
+const tapSound = new Audio('assets/tap.wav');
+let randomSound = Math.floor(Math.random() * 2) + 1;
+let birdsSound
+let isAudioPlayed
+
+
+backgroundMusic.loop = true;
+backgroundTraffic.loop = true;
+
+
+
+function crushSoundFn() {
+  if(isAudioPlayed) {
+    return
+  } else {
+    const crushSound = new Audio(`assets/crushSound.mp3`);
+    crushSound.currentTime = 0;
+    crushSound.play();
+    isAudioPlayed = true;
+    const beepSound = new Audio('assets/beepSound.mp3');
+    beepSound.play()
+    beepSound.currentTime = 0
+  }
+ 
+}
+
+let allBtns = document.querySelectorAll('.menu-btn')
+allBtns.forEach((btns)=> btns.addEventListener('click', function tapSoundFn() {
+  tapSound.currentTime = 0;
+  tapSound.play();
+}))
+
+function birdsSoundFn() {
+  birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
+  birdsSound.currentTime = 0;
+  birdsSound.play();
+}
+
+function evacuatorSoundFn() {
+  let evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
+  evacuatorSound.currentTime = 0;
+  evacuatorSound.play();
+}
+
 
 if (gameOrientation.type === 'portrait-primary') {
   warningOrientation.style.display = 'none'
@@ -309,6 +357,7 @@ let elapsedTime = 0;
 let elapsedTimeTraffic = 0
 let checkTimeTraffic = 0
 let checkTime = 0;
+let checkSoundTime = 0;
 let indicatorTime = 0;
 let waitingTime = 10
 let newWaitingTime = 0
@@ -447,11 +496,11 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       otherCar.crash = true;
       this.speed = 0;
       otherCar.speed = 0;
-  
+      crushSoundFn()
       trafficLightsArray.forEach((item) => {
         item.setRed();
       });
-  
+      backgroundTraffic.pause()
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);
       }
@@ -731,8 +780,10 @@ function handleEndFn(e) {
 function resetPosition() {
   initialX = 0;
   initialY = 0;
+  backgroundTraffic.play()
   evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
   backTimer.style.display = 'none'
+  isAudioPlayed = false
   cars.forEach(car => {
     if (car.crash) {
       car.autoElement.remove();
@@ -747,8 +798,32 @@ function evacuateCars() {
   backTimer.style.display = 'flex'
   backTimerFill.style.animation = 'fillTimer 2500ms forwards';
   backTimerFill.classList.add = 'fill-timer'
+  evacuatorSoundFn()
   setTimeout(resetPosition, 2500)
 }
+
+// ======= ЖЕСТЫ ==============
+
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let touchPoints = [];
+
+
+if (evacuatorCarImage) {
+  evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+} else {
+  console.log('Элемент .evacuator-block не найден');
+}
+
+function handleTouchStart(e) {
+  console.log('начало касания');
+}
+
+
+
 
 
 // ======= Облака =============
@@ -791,6 +866,10 @@ let setOpacity = 0
 let newTime = 0
 function startGame() {
   if (!gameInterval) {
+    backgroundMusic.play()
+    backgroundMusic.volume = 0.6
+    backgroundTraffic.play()
+    backgroundTraffic.volume = 0.6
     fullScreen(document.documentElement);
     gameContainer.style.display = 'flex'
     startMenu.style.display = 'none'
@@ -852,6 +931,11 @@ showTime()
 // }
 
 // darkening()
+
+if (elapsedTime - checkSoundTime > 20) {
+  birdsSoundFn()
+  checkSoundTime = elapsedTime
+ }
 
   if (elapsedTime - checkTime >= 1) {
     let randomImg = Math.floor(Math.random() * carsImg) + 1;
