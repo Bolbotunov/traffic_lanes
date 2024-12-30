@@ -524,12 +524,14 @@ margin: 15px;
   border: 1px solid white;
   border-radius: 20px;
   align-items: center;
-  padding: 15px;
+  padding: 8px;
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
+  max-width: 80px;
 }
 .lives img{
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
+  max-width: 100%;
 }
