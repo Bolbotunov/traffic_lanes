@@ -28,7 +28,7 @@ body{
   width: 100vw;
   min-height: 100vh;
   position: absolute;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -67,7 +67,7 @@ body{
 }
 
 .container {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-around;
     width: 100%;
@@ -517,4 +517,19 @@ padding: 7px;
 margin: 15px;
   }
 
+}
+
+
+.lives{
+  border: 1px solid white;
+  border-radius: 20px;
+  align-items: center;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+.lives img{
+  width: 20px;
+  height: 20px;
 }
