@@ -342,6 +342,18 @@ body{
   display: none;
 }
 
+
+
+
+@media (hover: none) and (pointer: coarse) {
+  .container {
+    width: 80%;
+  }
+}
+
+
+
+
 @media(max-width: 950px) and (orientation: portrait) {
   .logo-container {
     width: 50vw;
