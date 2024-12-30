@@ -3,6 +3,8 @@ const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
 let start = document.querySelector('.start-btn')
 let gameContainer = document.querySelector('.container')
+let logo = document.querySelector('.logo-container')
+let menuBtnsContainer = document.querySelector('.menu-btn-container')
 let startMenu = document.querySelector('.start-menu')
 let restart = document.querySelector('.restart')
 let evacuateBtn = document.querySelector('.evacuate-btn')
@@ -61,6 +63,16 @@ function evacuatorSoundFn() {
 // ================================================
 
 
+
+// function updateSizes() {
+//   console.log(2)
+//   const fieldHeight = window.innerWidth * 0.75;
+//   const menuWidth = window.innerWidth * 0.4;
+//   gameField.style.setProperty('--field-height', `${fieldHeight}px`);
+//   menuBtnsContainer.style.setProperty('--menu-width', `${menuWidth}px`)
+// }
+// updateSizes()
+
 start.addEventListener('click', startGame)
 
 // restart.addEventListener('click', restartGame)
@@ -71,6 +83,7 @@ function restartGame() {
 
 
 console.log(window.innerWidth)
+
 // if (gameOrientation.type === 'portrait-primary' && window.innerWidth < 600) {
 //   console.log(1)
 //   warningOrientation.style.display = 'none'
@@ -928,7 +941,7 @@ let setOpacity = 0
 let newTime = 0
 
 function startGame() {
-    if (innerWidth < 600 && gameOrientation.type.startsWith('portrait')) {
+    if (innerWidth < 550 && gameOrientation.type.startsWith('portrait')) {
       warningOrientation.style.display = 'flex'
       gameContainer.style.display = 'none'
       startMenu.style.display = 'none'
@@ -940,9 +953,7 @@ function startGame() {
 window.addEventListener('resize', handleResize)
 
 function handleResize() {
-  const fieldHeight = window.innerHeight * 0.75;
-  gameField.style.setProperty('--field-height', `${fieldHeight}px`);
-  if (innerWidth < 600 && window.innerHeight > window.innerWidth) {
+  if (innerWidth < 550 && window.innerHeight > window.innerWidth) {
     warningOrientation.style.display = 'flex';
     gameContainer.style.display = 'none';
     startMenu.style.display = 'none';
