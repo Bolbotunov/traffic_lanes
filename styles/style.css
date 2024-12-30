@@ -1,16 +1,10 @@
 /* *{
     outline: 1px solid black;
 } */
-:root {
+/* :root {
   --field-height: 80vh;
-}
-
-.active-container{
-  display: flex;
-}
-.hidden-container {
-  display: none;
-}
+  --menu-width: 33vw;
+} */
 
 /* ==================================================== */
 
@@ -35,7 +29,6 @@ body{
   min-height: 100vh;
   position: absolute;
   display: flex;
-  /* display: none; */
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -46,7 +39,6 @@ body{
   justify-content: center;
   flex-direction: column;
   max-width: 80vw;
-  height: 100vh;
 }
 
 .logo-container {
@@ -62,6 +54,9 @@ body{
   max-width: 100%;
 }
 
+
+
+
 .menu-btn-container{
   display: flex;
   align-items: center;
@@ -73,7 +68,6 @@ body{
 
 .container {
     display: none;
-    /* display: flex; */
     align-items: center;
     justify-content: space-around;
     width: 100%;
@@ -81,6 +75,8 @@ body{
     gap: 10px;
     align-items: stretch;
     transition: .5s all;
+    margin: 10px;
+    max-height: 78vh;
   }
 
 .layout{
@@ -108,17 +104,36 @@ body{
     outline: none;
     user-select: none;
     width: 90%;
-    max-width: 50%;
+    max-width: 60%;
     height: auto;
-    font-size: calc(2px + 0.8vw);
-    padding: 8px;
+    font-size: calc(4px + 0.8vw);
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 10px;
-    
   }
-  .menu-btn:hover {
+
+  .game-btn{
+    border-radius: 10px;
+    border: 2px solid #ffffff;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: 	#5c490e;
+    background-color: #daf2b5;
+    transition: .5s all;
+    outline: none;
+    user-select: none;
+    width: 90%;
+    max-width: 90%;
+    height: auto;
+    font-size: calc(6px + 0.8vw);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-btn:hover, .game-btn:hover {
     background-color: rgb(184, 167, 11);
     color: 	#ffffff;
     cursor: pointer;
@@ -157,7 +172,7 @@ body{
   
 
 .menu-timer{
-  height: 0px;
+  height: auto;
   width: 90%;
   text-align: center;
   margin-top: 10px;
@@ -167,7 +182,7 @@ body{
   .field {
     width: 100%;
     flex: 1;
-    max-width: 700px;
+    max-width: 57vw;
     height: auto;
     max-height: 600px;
     display: flex;
@@ -185,7 +200,7 @@ body{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     border: 2px solid #FFFFFF;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 20px;
@@ -327,41 +342,166 @@ body{
   display: none;
 }
 
-/* 
-@media only screen and (max-height: 500px) and (orientation: landscape) {
-  .field {
-    max-height: var(--field-height);
+@media(max-width: 950px) and (orientation: portrait) {
+  .logo-container {
+    width: 50vw;
   }
-  .container{
-    padding: 0px 20px 0px 20px;
+
+  .menu-btn-container{
+    width: 50vw;
+  }
+  .menu-btn{
+    max-width: 60%;
+    font-size: calc(7px + 0.8vw);
+  }
+  
+  .left-navigation, .right-navigation {
+    flex: 0.25;
+    height: auto;
+    max-width: 120px;
+    padding: 5px;
+    gap: 5px;
+  }
+  .game-btn{
+    width: 80%;
+    font-size: calc(6px + 0.8vw);
+    padding: 10px;
   }
 }
 
-@media only screen and (max-height: 900px) and (orientation: landscape) {
-  .field {
-    max-height: var(--field-height);
+@media(max-width: 768px) and (orientation: portrait) {
+  .logo-container {
+    width: 40vw;
   }
-  .container{
-    padding: 0px 20px 0px 20px;
+  .menu-btn-container{
+    width: 40vw;
+  }
+  .menu-btn{
+    max-width: 70%;
+  }
+  .left-navigation, .right-navigation {
+    flex: 0.25;
+    height: auto;
+    max-width: 80px;
+    padding: 2px;
+    gap: 0px;
+  }
+  .game-btn{
+    width: 80%;
+    font-size: calc(6px + 0.8vw);
+    padding: 10px;
+  }
+  .field {
+    max-width: 66vw;
   }
 }
 
-  @media only screen and (min-width: 600px) {
-    .orientation-warning{
-      display: none;
-    }
-  } */
+@media only screen and (max-width: 1000px) and (orientation: landscape) {
+  .field {
+    max-width: 60vw;
+    max-height: 77vh;
+  }
+  .left-navigation, .right-navigation {
+    flex: 0.25;
+    height: auto;
+    max-width: 140px;
+    padding: 5px;
+    gap: 0px;
+  }
+  .game-btn{
+    width: 90%;
+    font-size: calc(6px + 0.8vw);
+    padding: 10px;
+  }
+}
+
+@media only screen and (max-width: 850px) and (orientation: landscape) {
+  .field {
+    max-width: 45vw;
+    max-height: 76vh;
+  }
+  .left-navigation, .right-navigation {
+    max-width: 120px;
+  }
+
+}
 
 
-  /* @media only screen and (max-width: 600px) and (orientation: portrait) {
-    .orientation-warning {
-      display: block;
-      text-align: center;
-    }
-    .container{
-      display: none;
-    }
-    .start-menu{
-      display: none;
-    }
-  } */
+@media only screen and (max-width: 768px) and (orientation: landscape) {
+  .field {
+    max-width: 48vw;
+    max-height: 78vh;
+  }
+  .left-navigation, .right-navigation {
+    flex: 0.25;
+    height: auto;
+    max-width: 100px;
+    padding: 5px;
+    gap: 0px;
+  }
+  .game-btn{
+    width: 90%;
+    font-size: calc(6px + 0.8vw);
+    padding: 10px;
+  }
+}
+
+@media(max-width: 630px)  and (orientation: portrait) {
+
+  .logo-container {
+    width: 50vw;
+    margin-bottom: 15px;
+  }
+
+  .menu-btn-container{
+    width: 50vw;
+  }
+  .menu-btn{
+    max-width: 70%;
+    font-size: calc(9px + 0.8vw);
+    margin: 8px;
+  }
+  .left-navigation, .right-navigation {
+    flex: 0.25;
+    height: auto;
+    max-width: 70px;
+    padding: 3px;
+    gap: 0px;
+  }
+  .game-btn{
+    width: 80%;
+    font-size: calc(6px + 0.8vw);
+    padding: 10px;
+  }
+  .field {
+    max-width: 70vw;
+  }
+  .duplicate {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media(max-width: 550px) and (orientation: portrait)  {
+
+  .logo-container {
+    width: 75vw;
+    margin-bottom: 15px;
+  }
+
+  .menu-btn-container{
+    width: 75vw;
+  }
+}
+
+
+
+
+
+@media(max-width: 360px) {
+  .menu-btn{
+padding: 7px;
+margin: 15px;
+  }
+
+}
