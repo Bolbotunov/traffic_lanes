@@ -1,7 +1,7 @@
 const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
-let start = document.querySelector('.start-btn')
+let start = document.querySelector('.game-btn')
 let gameContainer = document.querySelector('.container')
 let logo = document.querySelector('.logo-container')
 let menuBtnsContainer = document.querySelector('.menu-btn-container')
@@ -334,12 +334,12 @@ createMap()
 const roadPath = new Road(fieldSVG)
 roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
 roadPath.createPath('route2', 'M0 410 L 380 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
-roadPath.createPath('route3', 'M0 410 L 380 410 C 380 400, 455 445, 448 280 L 448 0', 'red');
+roadPath.createPath('route3', 'M0 410 L 380 410 C 380 409, 450 430, 448 280 L 448 0', 'red');
 
 
-roadPath.createPath('route5', 'M870 385 L 0 385', 'grey');
-roadPath.createPath('route6', 'M870 385 L 480 385 C 430 320, 465 340, 444 0 L 364 0', 'green');
-roadPath.createPath('route4', 'M870 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
+roadPath.createPath('route5', 'M900 385 L 0 385', 'grey');
+roadPath.createPath('route6', 'M900 385 L 480 385 C 425 310, 462 340, 444 0 L 444 0', 'green');
+roadPath.createPath('route4', 'M900 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
 
 
 roadPath.createPath('route7', 'M425 0 L 425 810', 'pink');
@@ -361,7 +361,7 @@ let checkSoundTime = 0;
 let indicatorTime = 0;
 let waitingTime = 10
 let newWaitingTime = 0
-let timeOfCrazyRide = 1
+let timeOfCrazyRide = 0.7
 let gameInterval;
 let cars = []
 let trafficLightsArray = [];
@@ -374,7 +374,7 @@ class Auto {
     this.route = route;
     this.typeCar = typeCar;
     this.rotateCar = 0
-    this.speed = speed || 3;
+    this.speed = speed || 2.5;
     this.position = 0;
     this.originalSpeed = this.speed;
     this.IsTurns = IsTurns
@@ -437,7 +437,7 @@ class Auto {
   move() {
     const pathInfo = pathsLengths[this.route];
     const safeDistance = 45;
-    const slowDistance = safeDistance * 1.5
+    const slowDistance = safeDistance * 1.25
     let car = this.autoElement
     let carPosition = this.position
 
@@ -604,7 +604,7 @@ class TrafficLights {
 
 
 const TL2 = new TrafficLights('second', ['#route1', '#route2', '#route3'], ['270', '310', '350']);
-const TL3 = new TrafficLights('third', ['#route4', '#route5', '#route6'], ['270', '310', '350']);
+const TL3 = new TrafficLights('third', ['#route4', '#route5', '#route6'], ['300', '340', '380']);
 const TL1 = new TrafficLights('first', ['#route7', '#route8', '#route9'], ['230', '270', '310']);
 const TL4 = new TrafficLights('fourth', ['#route10', '#route11', '#route12'], ['250', '290', '340']);
 TL2.createTrafficLights(353, 424);
@@ -649,16 +649,19 @@ createDivTrafficLight('fourth', 'fourth', 4);
 
 let rect1
 let rect2
-    function checkCollision(car1, car2) {
-  rect1 = car1.autoElement.getBoundingClientRect();
-  rect2 = car2.autoElement.getBoundingClientRect();
+function checkCollision(car1, car2) {
+  let rect1 = car1.autoElement.getBoundingClientRect();
+  let rect2 = car2.autoElement.getBoundingClientRect();
   return (
-    rect1.left + 6 < rect2.right &&
-    rect1.right > rect2.left + 6 &&
-    rect1.top + 6 < rect2.bottom &&
-    rect1.bottom > rect2.top + 6
+    (rect1.left > 400 && rect1.left < 650 || rect2.left > 400 && rect2.left < 650) &&
+    (rect1.top > 200 && rect1.top < 450 || rect2.top > 200 && rect2.top < 450) &&
+    rect1.left + 5 < rect2.right &&
+    rect1.right > rect2.left + 5 &&
+    rect1.top + 4 < rect2.bottom &&
+    rect1.bottom > rect2.top + 4
   )
 }
+
 
 
 let whereTurns
@@ -803,39 +806,39 @@ function evacuateCars() {
   setTimeout(resetPosition, 2500)
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    console.log('Устройство поддерживает события касания');
-  } else {
-    console.log('Устройство не поддерживает события касания');
-  }
+// document.addEventListener('DOMContentLoaded', function() {
+//   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+//     console.log('Устройство поддерживает события касания');
+//   } else {
+//     console.log('Устройство не поддерживает события касания');
+//   }
 
-  let evacuatorCarImage = document.querySelector('.evacuator-block');
+//   let evacuatorCarImage = document.querySelector('.evacuator-block');
 
-  if (evacuatorCarImage) {
-    console.log('Элемент найден');
-    evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-    evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
-    evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
-  } else {
-    console.log('Элемент .evacuator-block не найден');
-  }
+//   if (evacuatorCarImage) {
+//     console.log('Элемент найден');
+//     evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+//     evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+//     evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+//   } else {
+//     console.log('Элемент .evacuator-block не найден');
+//   }
 
-  function handleTouchStart(e) {
-    e.preventDefault();
-    console.log('начало касания');
-  }
+//   function handleTouchStart(e) {
+//     e.preventDefault();
+//     console.log('начало касания');
+//   }
 
-  function handleTouchMove(e) {
-    e.preventDefault();
-    console.log('движение касания');
-  }
+//   function handleTouchMove(e) {
+//     e.preventDefault();
+//     console.log('движение касания');
+//   }
 
-  function handleTouchEnd(e) {
-    e.preventDefault();
-    console.log('конец касания');
-  }
-});
+//   function handleTouchEnd(e) {
+//     e.preventDefault();
+//     console.log('конец касания');
+//   }
+// });
 
 
 
@@ -931,7 +934,6 @@ class Fog {
     if (this.x >= fieldSVG.getAttribute('width')) {
       this.fog.remove();
       arrFogs = arrFogs.filter(item => item !== this);
-      console.log(arrFogs)
    }
 }
 
@@ -947,7 +949,7 @@ function startGame() {
       startMenu.style.display = 'none'
     } else if (gameOrientation.type.startsWith('landscape')) {
       launchGame()
-      fullScreen(document.documentElement);
+      // fullScreen(document.documentElement);
     }
   }
 window.addEventListener('resize', handleResize)
@@ -959,7 +961,7 @@ function handleResize() {
     startMenu.style.display = 'none';
   } else if (warningOrientation.style.display === 'flex') {
     launchGame()
-    fullScreen(document.documentElement);
+    // fullScreen(document.documentElement);
   }
 }
 
@@ -1056,7 +1058,7 @@ if (elapsedTime - checkSoundTime > 20) {
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns, false).createAuto()
+    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false).createAuto()
     cars.push(newAuto);
     checkTime = elapsedTime;
     

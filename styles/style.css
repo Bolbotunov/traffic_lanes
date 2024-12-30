@@ -28,7 +28,7 @@ body{
   width: 100vw;
   min-height: 100vh;
   position: absolute;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -67,7 +67,7 @@ body{
 }
 
 .container {
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: space-around;
     width: 100%;
