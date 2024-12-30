@@ -241,9 +241,6 @@ body{
   .fill-timer {
     animation: fillTimer 2500ms forwards;
   }
-  
-
-
 
   .moveArrow{
     animation: animateArrow .8s infinite;
@@ -273,44 +270,6 @@ body{
 
 
 
-
-@media only screen and (max-height: 500px) and (orientation: landscape) {
-  .field {
-    max-height: var(--field-height);
-  }
-  .container{
-    padding: 0px 20px 0px 20px;
-  }
-}
-
-@media only screen and (max-height: 900px) and (orientation: landscape) {
-  .field {
-    max-height: var(--field-height);
-  }
-  .container{
-    padding: 0px 20px 0px 20px;
-  }
-}
-
-  @media only screen and (min-width: 600px) {
-    .orientation-warning{
-      display: none;
-    }
-  }
-
-
-  @media only screen and (max-width: 600px) and (orientation: portrait) {
-    .orientation-warning {
-      display: block;
-      text-align: center;
-    }
-    .container{
-      display: none;
-    }
-    .start-menu{
-      display: none;
-    }
-  }
 
   @keyframes blink {
     0% { fill-opacity: 1; }
@@ -362,3 +321,47 @@ body{
     75% { transform: scale(0.99) rotate(-2deg); }
     100% { transform: scale(1) rotate(0deg); }
   }
+
+
+.orientation-warning{
+  display: none;
+}
+
+/* 
+@media only screen and (max-height: 500px) and (orientation: landscape) {
+  .field {
+    max-height: var(--field-height);
+  }
+  .container{
+    padding: 0px 20px 0px 20px;
+  }
+}
+
+@media only screen and (max-height: 900px) and (orientation: landscape) {
+  .field {
+    max-height: var(--field-height);
+  }
+  .container{
+    padding: 0px 20px 0px 20px;
+  }
+}
+
+  @media only screen and (min-width: 600px) {
+    .orientation-warning{
+      display: none;
+    }
+  } */
+
+
+  /* @media only screen and (max-width: 600px) and (orientation: portrait) {
+    .orientation-warning {
+      display: block;
+      text-align: center;
+    }
+    .container{
+      display: none;
+    }
+    .start-menu{
+      display: none;
+    }
+  } */
