@@ -518,3 +518,18 @@ margin: 15px;
   }
 
 }
+
+
+.lives{
+  border: 1px solid white;
+  border-radius: 20px;
+  align-items: center;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+.lives img{
+  width: 20px;
+  height: 20px;
+}

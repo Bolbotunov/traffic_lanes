@@ -18,16 +18,24 @@ let timeFromStart = 0
 let night = document.querySelector('.layout')
 let gameOrientation = window.screen.orientation;
 let warningOrientation = document.querySelector('.orientation-warning')
-const backgroundMusic = new Audio('assets/mainTrack1.mp3');
 const backgroundTraffic = new Audio('assets/traffic.mp3');
 const tapSound = new Audio('assets/tap.wav');
-let randomSound = Math.floor(Math.random() * 2) + 1;
 let birdsSound
+let backgroundMusic
 let isAudioPlayed
-backgroundMusic.loop = true;
 backgroundTraffic.loop = true;
 
 // ============ ЗВУКИ ===============
+
+
+function gameSoundFn() {
+  let randomSound = Math.floor(Math.random() * 3) + 1;
+  backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
+  backgroundMusic.currentTime = 0;
+  backgroundMusic.play();
+  backgroundMusic.volume = 0.7
+  backgroundMusic.loop = true;
+}
 
 function crushSoundFn() {
   if(isAudioPlayed) {
@@ -35,9 +43,11 @@ function crushSoundFn() {
   } else {
     const crushSound = new Audio(`assets/crushSound.mp3`);
     crushSound.currentTime = 0;
+    crushSound.volume = 0.6
     crushSound.play();
     isAudioPlayed = true;
     const beepSound = new Audio('assets/beepSound.mp3');
+    beepSound.volume = 0.6
     beepSound.play()
     beepSound.currentTime = 0
   }
@@ -49,7 +59,9 @@ allBtns.forEach((btns)=> btns.addEventListener('click', function tapSoundFn() {
   tapSound.play();
 }))
 
+
 function birdsSoundFn() {
+  let randomSound = Math.floor(Math.random() * 2) + 1;
   birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
   birdsSound.currentTime = 0;
   birdsSound.play();
@@ -61,7 +73,6 @@ function evacuatorSoundFn() {
   evacuatorSound.play();
 }
 // ================================================
-
 
 
 // function updateSizes() {
@@ -334,12 +345,12 @@ createMap()
 const roadPath = new Road(fieldSVG)
 roadPath.createPath('route1', 'M0 410 L 870 410', 'black');
 roadPath.createPath('route2', 'M0 410 L 380 410 C 400 400, 420 440, 424 480 L 424 740', 'green');
-roadPath.createPath('route3', 'M0 410 L 380 410 C 380 400, 455 445, 448 280 L 448 0', 'red');
+roadPath.createPath('route3', 'M0 410 L 380 410 C 380 409, 450 430, 448 280 L 448 0', 'red');
 
 
-roadPath.createPath('route5', 'M870 385 L 0 385', 'grey');
-roadPath.createPath('route6', 'M870 385 L 480 385 C 430 320, 465 340, 444 0 L 364 0', 'green');
-roadPath.createPath('route4', 'M870 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
+roadPath.createPath('route5', 'M900 385 L 0 385', 'grey');
+roadPath.createPath('route6', 'M900 385 L 480 385 C 425 310, 462 340, 444 0 L 444 0', 'green');
+roadPath.createPath('route4', 'M900 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
 
 
 roadPath.createPath('route7', 'M425 0 L 425 810', 'pink');
@@ -359,27 +370,26 @@ let checkTimeTraffic = 0
 let checkTime = 0;
 let checkSoundTime = 0;
 let indicatorTime = 0;
-let waitingTime = 10
 let newWaitingTime = 0
-let timeOfCrazyRide = 1
 let gameInterval;
 let cars = []
 let trafficLightsArray = [];
 let loadEvacuator = false
 let loadingEvacuator = false
 
-
 class Auto {
   constructor(route, typeCar, speed, IsTurns, crash) {
     this.route = route;
     this.typeCar = typeCar;
     this.rotateCar = 0
-    this.speed = speed || 3;
+    this.speed = speed || 2.5;
     this.position = 0;
     this.originalSpeed = this.speed;
     this.IsTurns = IsTurns
     this.prevPoint = { x: 0, y: 0 };
     this.crash = crash
+    this.stoppedTime = null
+    this.waitingTime = 15
   }
 
   createAuto() {
@@ -420,8 +430,7 @@ class Auto {
       const cx = 26 + 0.5;
       const cy = 4 + 1.5;
       indicatorForward.setAttribute('transform', `rotate(35, ${cx}, ${cy})`)
-  
-  
+
       groupImages.appendChild(indicatorBack);
       groupImages.appendChild(indicatorForward);
     }
@@ -437,7 +446,7 @@ class Auto {
   move() {
     const pathInfo = pathsLengths[this.route];
     const safeDistance = 45;
-    const slowDistance = safeDistance * 1.5
+    const slowDistance = safeDistance * 1.25
     let car = this.autoElement
     let carPosition = this.position
 
@@ -447,22 +456,17 @@ const group = document.querySelector(`g[id="${this.route}"]`);
     trafficLightsArray.forEach((tl) => {
       if (tl.routesControl.includes(car.id)) {
         if (!tl.trafficLightsOn) {
-          if (elapsedTime - elapsedTimeTraffic <= waitingTime) {
             if (carPosition > tl.stopAreaPosition[0] && carPosition <= tl.stopAreaPosition[1]) {
               this.speed = 0.9;
             }
             if (carPosition > tl.stopAreaPosition[1] && carPosition <= tl.stopAreaPosition[2]) {
               this.speed = 0;
-            }
-          } else if (elapsedTime - elapsedTimeTraffic >= waitingTime && newWaitingTime <= timeOfCrazyRide) {
-            newWaitingTime = elapsedTime - elapsedTimeTraffic - waitingTime;
-            this.speed = this.originalSpeed;
-          } else if (newWaitingTime >= timeOfCrazyRide) {
-            elapsedTimeTraffic = elapsedTime;
-            newWaitingTime = 0;
-            if (carPosition <= tl.stopAreaPosition[2]) {
-              this.speed = 0;
-            }
+              if (elapsedTime > 90) {
+                this.checkStopTime(this.waitingTime / 1.5)
+              } else {
+                this.checkStopTime(this.waitingTime)
+              }
+              
           }
         } else {
           this.speed = this.originalSpeed;
@@ -523,10 +527,19 @@ const group = document.querySelector(`g[id="${this.route}"]`);
     if (this.position >= pathInfo.length) {
       this.autoElement.remove();
       cars = cars.filter(car => car !== this);
-    }
-  }
 }
-
+  }
+    checkStopTime(waitingTime) {
+      if (this.speed === 0) {
+      this.stoppedTime += 1 / 60;
+      if (this.stoppedTime >= waitingTime && this.stoppedTime <= waitingTime + 2) {
+      this.speed = this.originalSpeed;
+      
+      return true
+  } 
+}
+}
+}
 
 // ===================Светофор==================================
 
@@ -604,7 +617,7 @@ class TrafficLights {
 
 
 const TL2 = new TrafficLights('second', ['#route1', '#route2', '#route3'], ['270', '310', '350']);
-const TL3 = new TrafficLights('third', ['#route4', '#route5', '#route6'], ['270', '310', '350']);
+const TL3 = new TrafficLights('third', ['#route4', '#route5', '#route6'], ['300', '340', '380']);
 const TL1 = new TrafficLights('first', ['#route7', '#route8', '#route9'], ['230', '270', '310']);
 const TL4 = new TrafficLights('fourth', ['#route10', '#route11', '#route12'], ['250', '290', '340']);
 TL2.createTrafficLights(353, 424);
@@ -649,16 +662,19 @@ createDivTrafficLight('fourth', 'fourth', 4);
 
 let rect1
 let rect2
-    function checkCollision(car1, car2) {
-  rect1 = car1.autoElement.getBoundingClientRect();
-  rect2 = car2.autoElement.getBoundingClientRect();
+function checkCollision(car1, car2) {
+  let rect1 = car1.autoElement.getBoundingClientRect();
+  let rect2 = car2.autoElement.getBoundingClientRect();
   return (
-    rect1.left + 6 < rect2.right &&
-    rect1.right > rect2.left + 6 &&
-    rect1.top + 6 < rect2.bottom &&
-    rect1.bottom > rect2.top + 6
+    (rect1.left > 400 && rect1.left < 650 || rect2.left > 400 && rect2.left < 650) &&
+    (rect1.top > 200 && rect1.top < 450 || rect2.top > 200 && rect2.top < 450) &&
+    rect1.left + 5 < rect2.right &&
+    rect1.right > rect2.left + 5 &&
+    rect1.top + 4 < rect2.bottom &&
+    rect1.bottom > rect2.top + 4
   )
 }
+
 
 
 let whereTurns
@@ -781,6 +797,7 @@ function handleEndFn(e) {
 function resetPosition() {
   initialX = 0;
   initialY = 0;
+  backgroundTraffic.volume = 0.7
   backgroundTraffic.play()
   evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
   backTimer.style.display = 'none'
@@ -803,39 +820,39 @@ function evacuateCars() {
   setTimeout(resetPosition, 2500)
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    console.log('Устройство поддерживает события касания');
-  } else {
-    console.log('Устройство не поддерживает события касания');
-  }
+// document.addEventListener('DOMContentLoaded', function() {
+//   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+//     console.log('Устройство поддерживает события касания');
+//   } else {
+//     console.log('Устройство не поддерживает события касания');
+//   }
 
-  let evacuatorCarImage = document.querySelector('.evacuator-block');
+//   let evacuatorCarImage = document.querySelector('.evacuator-block');
 
-  if (evacuatorCarImage) {
-    console.log('Элемент найден');
-    evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-    evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
-    evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
-  } else {
-    console.log('Элемент .evacuator-block не найден');
-  }
+//   if (evacuatorCarImage) {
+//     console.log('Элемент найден');
+//     evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+//     evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+//     evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+//   } else {
+//     console.log('Элемент .evacuator-block не найден');
+//   }
 
-  function handleTouchStart(e) {
-    e.preventDefault();
-    console.log('начало касания');
-  }
+//   function handleTouchStart(e) {
+//     e.preventDefault();
+//     console.log('начало касания');
+//   }
 
-  function handleTouchMove(e) {
-    e.preventDefault();
-    console.log('движение касания');
-  }
+//   function handleTouchMove(e) {
+//     e.preventDefault();
+//     console.log('движение касания');
+//   }
 
-  function handleTouchEnd(e) {
-    e.preventDefault();
-    console.log('конец касания');
-  }
-});
+//   function handleTouchEnd(e) {
+//     e.preventDefault();
+//     console.log('конец касания');
+//   }
+// });
 
 
 
@@ -931,7 +948,6 @@ class Fog {
     if (this.x >= fieldSVG.getAttribute('width')) {
       this.fog.remove();
       arrFogs = arrFogs.filter(item => item !== this);
-      console.log(arrFogs)
    }
 }
 
@@ -968,8 +984,7 @@ function launchGame() {
   warningOrientation.style.display = 'none'
   gameContainer.style.display = 'flex'
   startMenu.style.display = 'none'
-  backgroundMusic.play()
-  backgroundMusic.volume = 0.6
+  gameSoundFn()
   backgroundTraffic.play()
   backgroundTraffic.volume = 0.6
   gameContainer.style.display = 'flex'
@@ -990,7 +1005,7 @@ function gameTimer() {
     let randomY = Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
     let randomHeight = Math.floor(Math.random() * 700) + 100;
-    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.7, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.9)
+    let newFog = new Fog(fieldSVG, 'assets/fogTest.png', 0.8, randomWidth * -1).createFog(randomWidth, randomHeight, randomY , 0.9)
      fogTimeLine = elapsedTime
      arrFogs.push(newFog)
   }
@@ -1056,11 +1071,9 @@ if (elapsedTime - checkSoundTime > 20) {
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 3, whereTurns, false).createAuto()
+    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false).createAuto()
     cars.push(newAuto);
     checkTime = elapsedTime;
     
   }
 }
-
-
