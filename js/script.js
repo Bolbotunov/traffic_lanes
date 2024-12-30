@@ -16,21 +16,16 @@ let timeFromStart = 0
 let night = document.querySelector('.layout')
 let gameOrientation = window.screen.orientation;
 let warningOrientation = document.querySelector('.orientation-warning')
-
-// console.log(gameOrientation)
-
 const backgroundMusic = new Audio('assets/mainTrack1.mp3');
 const backgroundTraffic = new Audio('assets/traffic.mp3');
 const tapSound = new Audio('assets/tap.wav');
 let randomSound = Math.floor(Math.random() * 2) + 1;
 let birdsSound
 let isAudioPlayed
-
-
 backgroundMusic.loop = true;
 backgroundTraffic.loop = true;
 
-
+// ============ ЗВУКИ ===============
 
 function crushSoundFn() {
   if(isAudioPlayed) {
@@ -44,7 +39,6 @@ function crushSoundFn() {
     beepSound.play()
     beepSound.currentTime = 0
   }
- 
 }
 
 let allBtns = document.querySelectorAll('.menu-btn')
@@ -64,25 +58,45 @@ function evacuatorSoundFn() {
   evacuatorSound.currentTime = 0;
   evacuatorSound.play();
 }
+// ================================================
 
-
-if (gameOrientation.type === 'portrait-primary') {
-  warningOrientation.style.display = 'none'
-  startMenu.style.display = 'flex'
-} 
-
-// else if (gameOrientation.type === 'portrait-primary' && gameInterval) {
-//   warningOrientation.style.display = 'flex'
-// }
 
 start.addEventListener('click', startGame)
 
 // restart.addEventListener('click', restartGame)
-
 function restartGame() {
   location.reload();
   fullScreen(document.documentElement);
 }
+
+
+console.log(window.innerWidth)
+// if (gameOrientation.type === 'portrait-primary' && window.innerWidth < 600) {
+//   console.log(1)
+//   warningOrientation.style.display = 'none'
+//   startMenu.style.display = 'flex'
+// }
+
+
+
+
+// function getViewportSize() {
+//   const width = window.innerWidth;
+//   const height = window.innerHeight;
+//   console.log(`Ширина видимой области: ${width}px`);
+//   console.log(`Высота видимой области: ${height}px`);
+// }
+
+// function handleResize() {
+//   const width = window.innerWidth;
+//   const height = window.innerHeight;
+//   console.log(`Ширина видимой области после изменения: ${width}px`);
+//   console.log(`Высота видимой области после изменения: ${height}px`);
+// }
+
+// getViewportSize();
+// window.addEventListener('resize', handleResize);
+
 
 
 
@@ -107,23 +121,6 @@ function fullScreen(element) {
     element.msRequestFullscreen();
   }
 }
-
-function getViewportSize() {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  console.log(`Ширина видимой области: ${width}px`);
-  console.log(`Высота видимой области: ${height}px`);
-}
-
-function handleResize() {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  console.log(`Ширина видимой области после изменения: ${width}px`);
-  console.log(`Высота видимой области после изменения: ${height}px`);
-}
-
-getViewportSize();
-window.addEventListener('resize', handleResize);
 
 class Road {
   constructor(fieldSVG, offsetX = 0, offsetY = 0, angle) {
@@ -714,6 +711,7 @@ createTree.createForest(25, 0, 210, 400, 451, 5);
 // let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 3).createAuto();
 // let evacuatorCarGroup = document.getElementById('#routeEvacuator');
 // roadPath.createPath('routeEvacuator', 'M315 520 L 430 400', 'black');
+
 let evacuatorCarImage = document.querySelector('.evacuator-block');
 evacuatorCarImage.style.cursor = 'grab';
 
@@ -802,59 +800,101 @@ function evacuateCars() {
   setTimeout(resetPosition, 2500)
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    console.log('Устройство поддерживает события касания');
+  } else {
+    console.log('Устройство не поддерживает события касания');
+  }
+
+  let evacuatorCarImage = document.querySelector('.evacuator-block');
+
+  if (evacuatorCarImage) {
+    console.log('Элемент найден');
+    evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+    evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+    evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+  } else {
+    console.log('Элемент .evacuator-block не найден');
+  }
+
+  function handleTouchStart(e) {
+    e.preventDefault();
+    console.log('начало касания');
+  }
+
+  function handleTouchMove(e) {
+    e.preventDefault();
+    console.log('движение касания');
+  }
+
+  function handleTouchEnd(e) {
+    e.preventDefault();
+    console.log('конец касания');
+  }
+});
+
+
+
+
+
 // ======= ЖЕСТЫ ==============
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-let touchPoints = [];
+// let touchStartX = 0;
+// let touchStartY = 0;
+// let touchEndX = 0;
+// let touchEndY = 0;
+// let touchPoints = [];
 
 
-function handleTouchStart(e) {
-  touchPoints = [];
-  let touch = e.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
-  touchPoints.push({ x: touchStartX, y: touchStartY });
-}
+// function handleTouchStart(e) {
+//   e.preventDefault()
+//   console.log('жест')
+//   // touchPoints = [];
+//   // let touch = e.touches[0];
+//   // touchStartX = touch.clientX;
+//   // touchStartY = touch.clientY;
+//   // touchPoints.push({ x: touchStartX, y: touchStartY });
+// }
 
-function handleTouchMove(e) {
-  let touch = e.touches[0];
-  touchEndX = touch.clientX;
-  touchEndY = touch.clientY;
-  touchPoints.push({ x: touchEndX, y: touchEndY });
-}
+// // function handleTouchMove(e) {
+// //   e.preventDefault()
+// //   let touch = e.touches[0];
+// //   touchEndX = touch.clientX;
+// //   touchEndY = touch.clientY;
+// //   touchPoints.push({ x: touchEndX, y: touchEndY });
+// // }
 
-function handleTouchEnd() {
-  if (isSwipeRightToLeft(touchPoints)) {
-    moveCarToTarget();
-  }
-}
+// // function handleTouchEnd() {
+// //   e.preventDefault()
+// //   if (isSwipeRightToLeft(touchPoints)) {
+// //     moveCarToTarget();
+// //   }
+// // }
 
-function isSwipeRightToLeft(points) {
-  if (points.length < 2) {
-    return false;
-  }
+// // function isSwipeRightToLeft(points) {
+// //   if (points.length < 2) {
+// //     return false;
+// //   }
 
-  let dx = points[points.length - 1].x - points[0].x;
-  let dy = points[points.length - 1].y - points[0].y;
+// //   let dx = points[points.length - 1].x - points[0].x;
+// //   let dy = points[points.length - 1].y - points[0].y;
 
-  // Проверка на горизонтальный свайп справа налево, покрывающий более половины ширины экрана
-  return dx < 0 && Math.abs(dx) > window.innerWidth / 2 && Math.abs(dx) > Math.abs(dy);
-}
+// //   // Проверка на горизонтальный свайп справа налево, покрывающий более половины ширины экрана
+// //   return dx < 0 && Math.abs(dx) > window.innerWidth / 2 && Math.abs(dx) > Math.abs(dy);
+// // }
 
-function moveCarToTarget() {
+// // function moveCarToTarget() {
 
-  let targetX = 100;
-  let targetY = 100;
-  evacuatorCarImage.style.transform = `translate(${targetX}px, ${targetY}px)`;
-  console.log('жест')
-}
+// //   let targetX = 100;
+// //   let targetY = 100;
+// //   evacuatorCarImage.style.transform = `translate(${targetX}px, ${targetY}px)`;
+// //   console.log('жест')
+// // }
 
-evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
-evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+// evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+// // evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+// // evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
 
 
 
@@ -896,20 +936,43 @@ class Fog {
 let fogTimeLine = 0
 let setOpacity = 0
 let newTime = 0
+
 function startGame() {
-  if (!gameInterval) {
-    backgroundMusic.play()
-    backgroundMusic.volume = 0.6
-    backgroundTraffic.play()
-    backgroundTraffic.volume = 0.6
-    fullScreen(document.documentElement);
-    gameContainer.style.display = 'flex'
-    startMenu.style.display = 'none'
-    gameInterval = setInterval(gameTimer, 1000 / 60);
+    if (innerWidth < 600 && gameOrientation.type.startsWith('portrait')) {
+      warningOrientation.style.display = 'flex'
+      gameContainer.style.display = 'none'
+      startMenu.style.display = 'none'
+    } else if (gameOrientation.type.startsWith('landscape')) {
+      launchGame()
+    }
+  }
+window.addEventListener('resize', handleResize)
+
+function handleResize() {
+  if (innerWidth < 600 && window.innerHeight > window.innerWidth) {
+    warningOrientation.style.display = 'flex';
+    gameContainer.style.display = 'none';
+    startMenu.style.display = 'none';
+  } else if (warningOrientation.style.display === 'flex') {
+    launchGame()
   }
 }
 
-
+function launchGame() {
+  if (!gameInterval) {
+  warningOrientation.style.display = 'none'
+  gameContainer.style.display = 'flex'
+  startMenu.style.display = 'none'
+  backgroundMusic.play()
+  backgroundMusic.volume = 0.6
+  backgroundTraffic.play()
+  backgroundTraffic.volume = 0.6
+  fullScreen(document.documentElement);
+  gameContainer.style.display = 'flex'
+  startMenu.style.display = 'none'
+  gameInterval = setInterval(gameTimer, 1000 / 60);
+  }
+}
 
 function gameTimer() {
   elapsedTime += 1 / 60;
@@ -917,7 +980,6 @@ function gameTimer() {
   cars.forEach(car => {
     car.move()
   });
-
 
 
   if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
