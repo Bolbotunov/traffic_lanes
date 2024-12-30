@@ -100,16 +100,6 @@ console.log(window.innerWidth)
 
 
 
-function updateHeight() {
-  const fieldHeight = window.innerHeight * 0.75;
-  gameField.style.setProperty('--field-height', `${fieldHeight}px`);
-}
-
-updateHeight();
-window.addEventListener('resize', updateHeight);
-
-
-
 function fullScreen(element) {
   if (element.requestFullscreen) {
     element.requestFullscreen();
@@ -944,17 +934,21 @@ function startGame() {
       startMenu.style.display = 'none'
     } else if (gameOrientation.type.startsWith('landscape')) {
       launchGame()
+      fullScreen(document.documentElement);
     }
   }
 window.addEventListener('resize', handleResize)
 
 function handleResize() {
+  const fieldHeight = window.innerHeight * 0.75;
+  gameField.style.setProperty('--field-height', `${fieldHeight}px`);
   if (innerWidth < 600 && window.innerHeight > window.innerWidth) {
     warningOrientation.style.display = 'flex';
     gameContainer.style.display = 'none';
     startMenu.style.display = 'none';
   } else if (warningOrientation.style.display === 'flex') {
     launchGame()
+    fullScreen(document.documentElement);
   }
 }
 
@@ -967,7 +961,6 @@ function launchGame() {
   backgroundMusic.volume = 0.6
   backgroundTraffic.play()
   backgroundTraffic.volume = 0.6
-  fullScreen(document.documentElement);
   gameContainer.style.display = 'flex'
   startMenu.style.display = 'none'
   gameInterval = setInterval(gameTimer, 1000 / 60);
