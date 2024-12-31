@@ -343,7 +343,73 @@ body{
 }
 
 
+.rules, .records, .end-game {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+}
+.rules-container, .records-container, .end-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: column;
+  width: 80%;
+  height: 80vh;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  border: 2px solid white;
+  padding: 20px;
+}
+.rules-content, .records-content, .end-content {
+  color: #5c490e;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
+.back {
+  width: 150px;
+  max-width: 100%;
+}
+
+.records-title{
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: calc(16px + 1vw);
+  text-align: center;
+}
+
+.records-list{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.records-container{
+  justify-content: center;
+  gap: 20px;
+  width: 80%;
+}
+.records-number{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.end-game {
+  position: absolute;
+  z-index: 10;
+  transition: 1s all;
+
+}
+
+.end-container {
+  background-color: rgba(255, 255, 255, 1);
+  transition: 1s all;
+}
 
 @media (hover: none) and (pointer: coarse) {
   .container {
