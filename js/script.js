@@ -1,12 +1,8 @@
 const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
-let start = document.querySelector('.start-btn')
-let gameContainer = document.querySelector('.container')
 let logo = document.querySelector('.logo-container')
 let menuBtnsContainer = document.querySelector('.menu-btn-container')
-let startMenu = document.querySelector('.start-menu')
-let restart = document.querySelector('.restart')
 let evacuateBtn = document.querySelector('.evacuate-btn')
 let leftNav = document.querySelector('.left-navigation')
 let rightNav = document.querySelector('.right-navigation')
@@ -23,7 +19,161 @@ const tapSound = new Audio('assets/tap.wav');
 let birdsSound
 let backgroundMusic
 let isAudioPlayed
+let lives = document.querySelectorAll('.lives img');
 backgroundTraffic.loop = true;
+
+let isPaused = false;
+let start
+let pause
+let back
+let gameContainer = document.querySelector('.container')
+let startMenu = document.querySelector('.start-menu')
+let endMenu = document.querySelector('.end-game')
+let rules = document.querySelector('.rules')
+let records = document.querySelector('.records')
+
+
+window.addEventListener('beforeunload', function (event) {
+  if (location.hash === '#menu') {
+    return
+  }
+  event.preventDefault();
+  event.returnValue = 'У вас есть несохраненные изменения. Вы действительно хотите уйти?';
+});
+
+
+
+function showMenu() {
+  startMenu.style.display = 'flex';
+  gameContainer.style.display = 'none';
+  warningOrientation.style.display = 'none';
+  rules.style.display = 'none';
+  records.style.display = 'none';
+  history.pushState({page: 'menu'}, 'Menu', '#menu');
+}
+showMenu()
+
+function showRules() {
+  startMenu.style.display = 'none';
+  gameContainer.style.display = 'none';
+  warningOrientation.style.display = 'none';
+  rules.style.display = 'flex';
+  records.style.display = 'none';
+  history.pushState({page: 'rules'}, 'Rules', '#rules');
+}
+
+function showRecords() {
+  startMenu.style.display = 'none';
+  gameContainer.style.display = 'none';
+  warningOrientation.style.display = 'none';
+  rules.style.display = 'none';
+  records.style.display = 'flex';
+  history.pushState({page: 'records'}, 'Records', '#records');
+}
+
+function endGame() {
+  startMenu.style.display = 'none';
+  warningOrientation.style.display = 'none';
+  rules.style.display = 'none';
+  records.style.display = 'none';
+  endMenu.style.display = 'flex';
+  history.pushState({page: 'endGame'}, 'endGame', '#endGame');
+}
+
+function showWarning() {
+  startMenu.style.display = 'none';
+  gameContainer.style.display = 'none';
+  warningOrientation.style.display = 'block';
+  records.style.display = 'none';
+  history.pushState({page: 'warning'}, 'Warning', '#warning');
+}
+
+function stopGame() {
+    window.location.reload();
+}
+
+
+
+function togglePause() {
+  if (isPaused) {
+    resumeGame()
+  } else {
+    pauseGame()
+    
+  }
+}
+
+function pauseGame() {
+  isPaused = true;
+  pause.innerHTML = 'pause'
+  pause.style.backgroundColor = '#da7509'
+  pause.innerHTML = 'start'
+  backgroundTraffic.pause();
+  backgroundMusic.pause();
+  fieldSVG.style.pointerEvents = 'none'
+  rightNav.style.pointerEvents = 'none'
+  clearInterval(gameInterval);
+  
+}
+
+function resumeGame() {
+  isPaused = false;
+  backgroundTraffic.play();
+  backgroundMusic.play();
+  pause.innerHTML = 'pause'
+  pause.style.backgroundColor = '#daf2b5'
+  gameInterval = setInterval(gameTimer, 1000 / 60);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  back = document.querySelectorAll('.back')
+  pause = document.querySelector('.pause')
+  start = document.querySelector('.start-btn')
+  const recordsBtn = document.querySelector('.records-btn');
+  const rulesBtn = document.querySelector('.rules-btn');
+
+  start.addEventListener('click', startGame);
+  pause.addEventListener('click', togglePause);
+  recordsBtn.addEventListener('click', showRecords)
+  rulesBtn.addEventListener('click', showRules)
+  back.forEach((btn) => {
+    btn.addEventListener('click', showMenu)
+  })
+
+  window.addEventListener('popstate', function(event) {
+    if (location.hash === '#game') {
+      let warningExit = confirm('вы хотите покинуть игру?')
+      if (warningExit) {
+        showMenu()
+        stopGame()
+      } else {
+        history.pushState({page: 'game'}, 'Game', '#game');
+      }
+    } else {
+      switch (event.state.page) {
+        case 'menu':
+          window.location.reload();
+          break;
+        case 'game':
+          startGame();
+          break;
+        case 'warning':
+          showWarning();
+          break;
+        case 'rules':
+          showRules();
+          break;
+        case 'records':
+          showRecords();
+          break;
+        case 'endGame':
+          endGame();
+          break;
+      }
+    }
+  });
+})
+
 
 // ============ ЗВУКИ ===============
 
@@ -84,23 +234,14 @@ function evacuatorSoundFn() {
 // }
 // updateSizes()
 
-start.addEventListener('click', startGame)
-
-// restart.addEventListener('click', restartGame)
-function restartGame() {
-  location.reload();
-  fullScreen(document.documentElement);
-}
 
 
-console.log(window.innerWidth)
 
 // if (gameOrientation.type === 'portrait-primary' && window.innerWidth < 600) {
 //   console.log(1)
 //   warningOrientation.style.display = 'none'
 //   startMenu.style.display = 'flex'
 // }
-
 
 
 
@@ -120,7 +261,6 @@ console.log(window.innerWidth)
 
 // getViewportSize();
 // window.addEventListener('resize', handleResize);
-
 
 
 
@@ -810,12 +950,24 @@ function resetPosition() {
   cars = cars.filter(car => car.crash !== true);
 }
 
+let countEvacuate = 0
+let lostLife
 
 function evacuateCars() {
+  countEvacuate += 1
+  if (countEvacuate === 3) {
+    pauseGame()
+    endGame()
+  }
   loadingEvacuator = true
   backTimer.style.display = 'flex'
   backTimerFill.style.animation = 'fillTimer 2500ms forwards';
   backTimerFill.classList.add = 'fill-timer'
+  let parameters
+    for (let i = 0; i < countEvacuate; i++) {
+      parameters = lives[lives.length - countEvacuate]
+      lostLife = parameters.setAttribute('src', 'assets/lifeLost.png');
+    }
   evacuatorSoundFn()
   setTimeout(resetPosition, 2500)
 }
@@ -957,11 +1109,13 @@ let setOpacity = 0
 let newTime = 0
 
 function startGame() {
+  history.pushState({page: 'game'}, 'Game', '#game');
     if (innerWidth < 550 && gameOrientation.type.startsWith('portrait')) {
       warningOrientation.style.display = 'flex'
       gameContainer.style.display = 'none'
       startMenu.style.display = 'none'
     } else if (gameOrientation.type.startsWith('landscape')) {
+      history.pushState({page: 'game'}, 'Game', '#game');
       launchGame()
       fullScreen(document.documentElement);
     }
@@ -999,6 +1153,7 @@ function gameTimer() {
   cars.forEach(car => {
     car.move()
   });
+  
 
 
   if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
