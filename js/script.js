@@ -26,6 +26,7 @@ let isPaused = false;
 let start
 let pause
 let back
+let backToMenu
 let gameContainer = document.querySelector('.container')
 let startMenu = document.querySelector('.start-menu')
 let endMenu = document.querySelector('.end-game')
@@ -92,7 +93,14 @@ function stopGame() {
     window.location.reload();
 }
 
-
+// function backToMenuFn() {
+//   startMenu.style.display = 'flex';
+//   gameContainer.style.display = 'none';
+//   warningOrientation.style.display = 'none';
+//   records.style.display = 'none';
+//   history.pushState({page: 'menu'}, 'Menu', '#menu');
+//   stopGame()
+// }
 
 function togglePause() {
   if (isPaused) {
@@ -111,7 +119,7 @@ function pauseGame() {
   backgroundTraffic.pause();
   backgroundMusic.pause();
   fieldSVG.style.pointerEvents = 'none'
-  rightNav.style.pointerEvents = 'none'
+  // rightNav.style.pointerEvents = 'none'
   clearInterval(gameInterval);
   
 }
@@ -127,6 +135,7 @@ function resumeGame() {
 
 document.addEventListener('DOMContentLoaded', function() {
   back = document.querySelectorAll('.back')
+  backToMenu = document.querySelector('.back-to-menu')
   pause = document.querySelector('.pause')
   start = document.querySelector('.start-btn')
   const recordsBtn = document.querySelector('.records-btn');
@@ -139,6 +148,17 @@ document.addEventListener('DOMContentLoaded', function() {
   back.forEach((btn) => {
     btn.addEventListener('click', showMenu)
   })
+
+  backToMenu.addEventListener('click', function() {
+    let warningExit = confirm('вы хотите покинуть игру?')
+  if (warningExit) {
+    showMenu()
+    stopGame()
+  } else {
+    return
+  }
+  })
+  
 
   window.addEventListener('popstate', function(event) {
     if (location.hash === '#game') {
@@ -636,6 +656,8 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 
   cars.forEach(otherCar => {
     if (otherCar !== this && checkCollision(this, otherCar)) {
+      // console.log(relativeLeft1, relativeRight1, relativeTop1, relativeBottom1)
+      // console.log(relativeLeft2, relativeRight2, relativeTop2, relativeBottom2)
       this.crash = true;
       otherCar.crash = true;
       this.speed = 0;
@@ -650,6 +672,7 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       }
     }
   });
+  
   
 
     if (this.position < pathInfo.length) {
@@ -680,6 +703,44 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 }
 }
 }
+
+
+// ======проверка столкновений=============
+
+let relativeLeft1
+let relativeRight1 
+let relativeTop1 
+let relativeBottom1 
+
+let relativeLeft2
+  let relativeRight2
+  let relativeTop2 
+  let relativeBottom2
+
+function checkCollision(car1, car2) {
+  let rect1 = car1.autoElement.getBoundingClientRect();
+  let rect2 = car2.autoElement.getBoundingClientRect();
+
+  relativeLeft1 = rect1.left / window.innerWidth * 100
+   relativeRight1 = rect1.right / window.innerWidth * 100
+   relativeTop1 = rect1.top / window.innerHeight * 100
+   relativeBottom1 = rect1.bottom / window.innerHeight * 100
+  
+  relativeLeft2 = rect2.left / window.innerWidth * 100
+  relativeRight2 = rect2.right / window.innerWidth * 100
+  relativeTop2 = rect2.top / window.innerHeight * 100
+  relativeBottom2 = rect2.bottom / window.innerHeight * 100
+
+  return (
+    (relativeLeft1 > 30 && relativeLeft1 < 70 || relativeLeft2 > 30 && relativeLeft2 < 70) &&
+    (relativeTop1 > 30 && relativeTop1 < 70 || relativeTop2 > 30 && relativeTop2 < 70) &&
+    (relativeLeft1 - 0.5 < relativeRight2) &&
+    (relativeRight1 > relativeLeft2) &&
+    (relativeTop1 < relativeBottom2) &&
+    (relativeBottom1 > relativeTop2)
+  );
+}
+
 
 // ===================Светофор==================================
 
@@ -728,7 +789,6 @@ class TrafficLights {
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200])
       }
-      elapsedTimeTraffic = elapsedTime
     });
 
     return colorTrafficLights;
@@ -751,6 +811,12 @@ class TrafficLights {
     this.trafficLightsOn = false;
     trafficLightsState[this.setClass] = this.trafficLightsOn;
     this.colorTrafficLights.setAttribute('fill', 'red');
+    this.updateDivTrafficLights();
+  }
+  setGreen() {
+    this.trafficLightsOn = true;
+    trafficLightsState[this.setClass] = this.trafficLightsOn;
+    this.colorTrafficLights.setAttribute('fill', greenColor);
     this.updateDivTrafficLights();
   }
 }
@@ -776,6 +842,7 @@ function createDivTrafficLight(id, className, text) {
   divTrafficLight.style.userSelect = 'none';
   divTrafficLight.style.outline = 'none';
   divTrafficLight.innerHTML = text;
+
   divTrafficLight.addEventListener('click', () => {
     trafficLightsArray.forEach(tl => {
       if (tl.setClass === className) {
@@ -798,23 +865,30 @@ createDivTrafficLight('third', 'third', 3);
 createDivTrafficLight('fourth', 'fourth', 4);
 
 
-// ======проверка столкновений=============
 
-let rect1
-let rect2
-function checkCollision(car1, car2) {
-  let rect1 = car1.autoElement.getBoundingClientRect();
-  let rect2 = car2.autoElement.getBoundingClientRect();
-  return (
-    (rect1.left > 400 && rect1.left < 650 || rect2.left > 400 && rect2.left < 650) &&
-    (rect1.top > 200 && rect1.top < 450 || rect2.top > 200 && rect2.top < 450) &&
-    rect1.left + 5 < rect2.right &&
-    rect1.right > rect2.left + 5 &&
-    rect1.top + 4 < rect2.bottom &&
-    rect1.bottom > rect2.top + 4
-  )
-}
-
+let allStop = true
+document.addEventListener('keydown', function(event) {
+  
+  let key = event.key
+  if (key === ' ' && allStop) {
+    trafficLightsArray.forEach((item) => {
+      item.setRed();
+      allStop = false
+    });
+  } else if (key === ' ' && !allStop) {
+    trafficLightsArray.forEach((item) => {
+      item.setGreen();
+      allStop = true
+    });
+  }
+  
+  trafficLightsArray.forEach((item, index) => {
+    if (index + 1 === parseInt(key)) {
+      item.toggleTrafficLights();
+      item.updateDivTrafficLights();
+    }
+  })
+})
 
 
 let whereTurns
@@ -884,7 +958,8 @@ function handleStart(e) {
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   startX = startTapX - initialX;
   startY = startTapY - initialY;
-
+console.log(startTapX)
+console.log(startTapY)
   document.addEventListener('mousemove', moveFn);
   document.addEventListener('mouseup', handleEndFn);
   document.addEventListener('touchmove', moveFn);
@@ -1110,42 +1185,30 @@ let newTime = 0
 
 function startGame() {
   history.pushState({page: 'game'}, 'Game', '#game');
-    if (innerWidth < 550 && gameOrientation.type.startsWith('portrait')) {
-      warningOrientation.style.display = 'flex'
-      gameContainer.style.display = 'none'
-      startMenu.style.display = 'none'
-    } else if (gameOrientation.type.startsWith('landscape')) {
-      history.pushState({page: 'game'}, 'Game', '#game');
-      launchGame()
-      fullScreen(document.documentElement);
-    }
-  }
-window.addEventListener('resize', handleResize)
-
-function handleResize() {
-  if (innerWidth < 550 && window.innerHeight > window.innerWidth) {
+  if (innerWidth < 500 && window.innerHeight > window.innerWidth) {
     warningOrientation.style.display = 'flex';
     gameContainer.style.display = 'none';
     startMenu.style.display = 'none';
-  } else if (warningOrientation.style.display === 'flex') {
-    launchGame()
+    window.addEventListener('resize', startGame);
+  } else if (window.innerHeight < window.innerWidth) {
+    launchGame();
     fullScreen(document.documentElement);
   }
 }
 
 function launchGame() {
   if (!gameInterval) {
-  warningOrientation.style.display = 'none'
-  gameContainer.style.display = 'flex'
-  startMenu.style.display = 'none'
-  gameSoundFn()
-  backgroundTraffic.play()
-  backgroundTraffic.volume = 0.6
-  gameContainer.style.display = 'flex'
-  startMenu.style.display = 'none'
-  gameInterval = setInterval(gameTimer, 1000 / 60);
+    warningOrientation.style.display = 'none';
+    gameContainer.style.display = 'flex';
+    startMenu.style.display = 'none';
+    gameSoundFn();
+    backgroundTraffic.play();
+    backgroundTraffic.volume = 0.6;
+    gameInterval = setInterval(gameTimer, 1000 / 60);
   }
 }
+
+
 
 function gameTimer() {
   elapsedTime += 1 / 60;
@@ -1167,7 +1230,6 @@ function gameTimer() {
 
 
 arrFogs.forEach((item)=> item.fogMove())
-
 
 
 evacuatorCarImage.addEventListener('mousedown', handleStart);
@@ -1226,8 +1288,13 @@ if (elapsedTime - checkSoundTime > 20) {
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false).createAuto()
-    cars.push(newAuto);
+    if (cars.length > 70) {
+      return
+    } else {
+      let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false).createAuto()
+      cars.push(newAuto);
+    }
+    
     checkTime = elapsedTime;
     
   }
