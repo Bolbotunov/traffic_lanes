@@ -600,7 +600,6 @@ let gameInterval;
 let cars = []
 let trafficLightsArray = [];
 let loadEvacuator = false
-let loadingEvacuator = false
 
 class Auto {
   constructor(route, typeCar, speed, IsTurns, crash) {
@@ -725,7 +724,7 @@ const group = document.querySelector(`g[id="${this.route}"]`);
         vibrating(true)
         isVibrating = true
       }
-      
+      canMove = true
       this.crash = true;
       otherCar.crash = true;
       this.speed = 0;
@@ -968,7 +967,7 @@ document.addEventListener('keydown', function(event) {
 
 
 let whereTurns
-
+let canMove = false
 // ======================== DRAG EVACUATOR ===============================
 
 // let evacuator = new Auto(`#routeEvacuator`, `assets/evacuator.png`, 3).createAuto();
@@ -976,20 +975,25 @@ let whereTurns
 // roadPath.createPath('routeEvacuator', 'M315 520 L 430 400', 'black');
 
 let evacuatorCarImage = document.querySelector('.evacuator-block');
-evacuatorCarImage.style.cursor = 'grab';
+
 
 let startX, startY, initialX = 0, initialY = 0;
 let relativeX;
 let relativeY;
-
 function handleStart(e) {
   e.preventDefault();
+  if (!canMove) {
+    evacuatorCarImage.style.cursor = 'pointer';
+    return;
+  }
+  evacuatorCarImage.style.cursor = 'grab';
   let startTapX = e.touches ? e.touches[0].clientX : e.clientX;
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   startX = startTapX - initialX;
   startY = startTapY - initialY;
-console.log(startTapX)
-console.log(startTapY)
+  console.log(startTapX);
+  console.log(startTapY);
+  
   document.addEventListener('mousemove', moveFn);
   document.addEventListener('mouseup', handleEndFn);
   document.addEventListener('touchmove', moveFn);
@@ -1026,7 +1030,7 @@ function handleEndFn(e) {
     if (arrow.style.display !== 'none') {
       arrow.style.display = 'none';
       evacuatorCarImage.style.cursor = 'grab';
-      loadEvacuator = true;
+      loadEvacuator = true
     }
     document.removeEventListener('mousemove', moveFn);
     document.removeEventListener('mouseup', handleEndFn);
@@ -1043,6 +1047,8 @@ function resetPosition() {
   initialX = 0;
   initialY = 0;
   backgroundTraffic.volume = 0.7
+  canMove = false
+  loadEvacuator = false
   backgroundTraffic.play()
   evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
   backTimer.style.display = 'none'
@@ -1068,7 +1074,6 @@ function evacuateCars() {
     endGame()
   }
   
-  loadingEvacuator = true
   backTimer.style.display = 'flex'
   backTimerFill.style.animation = 'fillTimer 2500ms forwards';
   backTimerFill.classList.add = 'fill-timer'
@@ -1079,6 +1084,7 @@ function evacuateCars() {
     }
   evacuatorSoundFn()
   setTimeout(resetPosition, 2500)
+  
 }
 
 // document.addEventListener('DOMContentLoaded', function() {
@@ -1252,8 +1258,13 @@ function gameTimer() {
     car.move()
   });
   
-
-
+  if (loadEvacuator) {
+    evacuateBtn.disabled = false
+    evacuateBtn.addEventListener('click', evacuateCars);
+  } else {
+    evacuateBtn.disabled = true
+  }
+console.log(loadEvacuator)
   if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
     let randomY = Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
@@ -1269,9 +1280,7 @@ arrFogs.forEach((item)=> item.fogMove())
 
 evacuatorCarImage.addEventListener('mousedown', handleStart);
 evacuatorCarImage.addEventListener('touchstart', handleStart);
-  if (loadEvacuator) {
-    evacuateBtn.addEventListener('click', evacuateCars);
-  }
+
 
 resultGame = showTime(elapsedTime)
 function showTime(elapsedTime) {
@@ -1335,3 +1344,4 @@ if (elapsedTime - checkSoundTime > 20) {
     
   }
 }
+
