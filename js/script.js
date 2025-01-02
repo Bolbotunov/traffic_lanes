@@ -23,6 +23,7 @@ let lives = document.querySelectorAll('.lives img');
 backgroundTraffic.loop = true;
 
 let isPaused = false;
+let isVibrating = false;
 let start
 let pause
 let back
@@ -720,8 +721,11 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 
   cars.forEach(otherCar => {
     if (otherCar !== this && checkCollision(this, otherCar)) {
-      // console.log(relativeLeft1, relativeRight1, relativeTop1, relativeBottom1)
-      // console.log(relativeLeft2, relativeRight2, relativeTop2, relativeBottom2)
+      if(!isVibrating) {
+        vibrating(true)
+        isVibrating = true
+      }
+      
       this.crash = true;
       otherCar.crash = true;
       this.speed = 0;
@@ -731,9 +735,6 @@ const group = document.querySelector(`g[id="${this.route}"]`);
         item.setRed();
       });
       backgroundTraffic.pause()
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
-      }
     }
   });
   
@@ -768,6 +769,15 @@ const group = document.querySelector(`g[id="${this.route}"]`);
 }
 }
 
+
+function vibrating(vibro) {
+  if ("vibrate" in navigator) {
+    if (vibro) {
+      navigator.vibrate(400);
+      console.log('ok')
+    }
+}
+}
 
 // ======проверка столкновений=============
 
@@ -1048,12 +1058,16 @@ function resetPosition() {
 let countEvacuate = 0
 let lostLife
 
+
+  
 function evacuateCars() {
   countEvacuate += 1
+  isVibrating = false
   if (countEvacuate === 3) {
     pauseGame()
     endGame()
   }
+  
   loadingEvacuator = true
   backTimer.style.display = 'flex'
   backTimerFill.style.animation = 'fillTimer 2500ms forwards';
