@@ -27,11 +27,26 @@ let start
 let pause
 let back
 let backToMenu
+let resultGame
 let gameContainer = document.querySelector('.container')
 let startMenu = document.querySelector('.start-menu')
 let endMenu = document.querySelector('.end-game')
+let endScore = document.querySelector('.end-score')
 let rules = document.querySelector('.rules')
 let records = document.querySelector('.records')
+
+let previousOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+
+window.addEventListener('resize', function() {
+  let currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+
+  if (currentOrientation !== previousOrientation) {
+    previousOrientation = currentOrientation;
+    console.log("Screen orientation changed to:", currentOrientation);
+  }
+});
+
+
 
 
 window.addEventListener('beforeunload', function (event) {
@@ -50,6 +65,7 @@ function showMenu() {
   warningOrientation.style.display = 'none';
   rules.style.display = 'none';
   records.style.display = 'none';
+  endMenu.style.display = 'none';
   history.pushState({page: 'menu'}, 'Menu', '#menu');
 }
 showMenu()
@@ -76,8 +92,10 @@ function endGame() {
   startMenu.style.display = 'none';
   warningOrientation.style.display = 'none';
   rules.style.display = 'none';
+  gameContainer.style.display = 'none';
   records.style.display = 'none';
   endMenu.style.display = 'flex';
+  endScore.innerHTML = `ваше время: ${resultGame}`
   history.pushState({page: 'endGame'}, 'endGame', '#endGame');
 }
 
@@ -113,9 +131,8 @@ function togglePause() {
 
 function pauseGame() {
   isPaused = true;
-  pause.innerHTML = 'pause'
   pause.style.backgroundColor = '#da7509'
-  pause.innerHTML = 'start'
+  pause.innerHTML = 'играть'
   backgroundTraffic.pause();
   backgroundMusic.pause();
   fieldSVG.style.pointerEvents = 'none'
@@ -128,7 +145,7 @@ function resumeGame() {
   isPaused = false;
   backgroundTraffic.play();
   backgroundMusic.play();
-  pause.innerHTML = 'pause'
+  pause.innerHTML = 'пауза'
   pause.style.backgroundColor = '#daf2b5'
   gameInterval = setInterval(gameTimer, 1000 / 60);
 }
@@ -199,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function gameSoundFn() {
-  let randomSound = Math.floor(Math.random() * 3) + 1;
+  let randomSound = Math.floor(Math.random() * 4) + 1;
   backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
   backgroundMusic.currentTime = 0;
   backgroundMusic.play();
@@ -518,8 +535,55 @@ roadPath.createPath('route8', 'M425 0 L 425 300 C 425 300, 425 400, 350 385 L 0 
 roadPath.createPath('route9', 'M425 0 L 425 300 C 425 380, 415 390, 450 405 L 870 410', 'red');
 
 roadPath.createPath('route10', 'M445 810 L 445 0', 'black');
-roadPath.createPath('route12', 'M445 810 L 445 490 C 455 430, 470 418, 480 410 L 870 410', 'green');
+roadPath.createPath('route12', 'M445 810 L 445 498 C 445 490, 450 428, 490 410 L 870 410', 'green');
 roadPath.createPath('route11', 'M445 810 L 445 470 C 450 400, 420 390, 390 385 L 0 385', 'red');
+
+// ============== ЛЕС ===================================
+class Trees {
+  constructor(fieldSVG) {
+    this.fieldSVG = fieldSVG;
+  }
+
+  createTree(x, y, randomTree, randomMotion) {
+    const trees = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    trees.setAttribute('href', `assets/tree${randomTree}.png`);
+    trees.setAttribute('width', '100');
+    trees.setAttribute('height', '100');
+    trees.setAttribute('class', `motionTrees${randomMotion}`);
+    const treesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    treesGroup.setAttribute('transform', `translate(${x}, ${y})`);
+    treesGroup.appendChild(trees);
+    this.fieldSVG.appendChild(treesGroup);
+  }
+  createForest(count, startCoordinatesX, finishCoordinatesX, startCoordinatesY, finishCoordinatesY, step) {
+    for (let i = 0; i < count; i++) {
+      let randomMotion = Math.floor(Math.random() * 3) + 1;
+      let randomTree = Math.floor(Math.random() * 4) + 1;
+      let randomTreeX = Math.floor(Math.random() * ((finishCoordinatesX - startCoordinatesX / step) + 1)) + startCoordinatesX
+      let randomTreeY = Math.floor(Math.random() * ((finishCoordinatesY - startCoordinatesY / step) + 1)) + startCoordinatesY
+      this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
+    }
+  }
+}
+
+let createTree = new Trees(fieldSVG);
+createTree.createForest(50, 5, 320, 5, 275, 5);
+createTree.createForest(1, 750, 755, 5, 10, 1);
+createTree.createForest(1, 750, 755, 55, 60, 1);
+createTree.createForest(1, 750, 755, 105, 110, 1);
+createTree.createForest(1, 750, 755, 155, 160, 1);
+createTree.createForest(1, 750, 755, 205, 210, 1);
+createTree.createForest(1, 750, 755, 255, 260, 1);
+createTree.createForest(1, 550, 555, 255, 260, 1);
+createTree.createForest(1, 550, 555, 100, 105, 1);
+createTree.createForest(1, 550, 555, 600, 605, 1);
+createTree.createForest(1, 550, 555, 475, 480, 1);
+createTree.createForest(1, 625, 630, 475, 480, 1);
+createTree.createForest(1, 680, 685, 525, 530, 1);
+createTree.createForest(1, 450, 455, 535, 540, 1);
+createTree.createForest(25, 0, 210, 400, 451, 5);
+
+
 
 
 // ================Машинки=================================
@@ -731,13 +795,15 @@ function checkCollision(car1, car2) {
   relativeTop2 = rect2.top / window.innerHeight * 100
   relativeBottom2 = rect2.bottom / window.innerHeight * 100
 
+  const margin = 0.7;
+
   return (
-    (relativeLeft1 > 30 && relativeLeft1 < 70 || relativeLeft2 > 30 && relativeLeft2 < 70) &&
-    (relativeTop1 > 30 && relativeTop1 < 70 || relativeTop2 > 30 && relativeTop2 < 70) &&
-    (relativeLeft1 - 0.5 < relativeRight2) &&
-    (relativeRight1 > relativeLeft2) &&
-    (relativeTop1 < relativeBottom2) &&
-    (relativeBottom1 > relativeTop2)
+    (relativeLeft1 > 35 && relativeLeft1 < 65 || relativeLeft2 > 35 && relativeLeft2 < 65) &&
+    (relativeTop1 > 35 && relativeTop1 < 65 || relativeTop2 > 35 && relativeTop2 < 65) &&
+    (relativeLeft1 + margin < relativeRight2) &&
+    (relativeRight1 - margin > relativeLeft2) &&
+    (relativeTop1 + margin < relativeBottom2) &&
+    (relativeBottom1 - margin > relativeTop2)
   );
 }
 
@@ -892,52 +958,6 @@ document.addEventListener('keydown', function(event) {
 
 
 let whereTurns
-// ============== ЛЕС ===================================
-class Trees {
-  constructor(fieldSVG) {
-    this.fieldSVG = fieldSVG;
-  }
-
-  createTree(x, y, randomTree, randomMotion) {
-    const trees = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    trees.setAttribute('href', `assets/tree${randomTree}.png`);
-    trees.setAttribute('width', '100');
-    trees.setAttribute('height', '100');
-    trees.setAttribute('class', `motionTrees${randomMotion}`);
-    const treesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    treesGroup.setAttribute('transform', `translate(${x}, ${y})`);
-    treesGroup.appendChild(trees);
-    this.fieldSVG.appendChild(treesGroup);
-  }
-  createForest(count, startCoordinatesX, finishCoordinatesX, startCoordinatesY, finishCoordinatesY, step) {
-    for (let i = 0; i < count; i++) {
-      let randomMotion = Math.floor(Math.random() * 3) + 1;
-      let randomTree = Math.floor(Math.random() * 4) + 1;
-      let randomTreeX = Math.floor(Math.random() * ((finishCoordinatesX - startCoordinatesX / step) + 1)) + startCoordinatesX
-      let randomTreeY = Math.floor(Math.random() * ((finishCoordinatesY - startCoordinatesY / step) + 1)) + startCoordinatesY
-      this.createTree(randomTreeX, randomTreeY, randomTree, randomMotion);
-    }
-  }
-}
-
-let createTree = new Trees(fieldSVG);
-createTree.createForest(50, 5, 320, 5, 275, 5);
-createTree.createForest(1, 750, 755, 5, 10, 1);
-createTree.createForest(1, 750, 755, 55, 60, 1);
-createTree.createForest(1, 750, 755, 105, 110, 1);
-createTree.createForest(1, 750, 755, 155, 160, 1);
-createTree.createForest(1, 750, 755, 205, 210, 1);
-createTree.createForest(1, 750, 755, 255, 260, 1);
-createTree.createForest(1, 550, 555, 255, 260, 1);
-createTree.createForest(1, 550, 555, 100, 105, 1);
-createTree.createForest(1, 550, 555, 600, 605, 1);
-createTree.createForest(1, 550, 555, 475, 480, 1);
-createTree.createForest(1, 625, 630, 475, 480, 1);
-createTree.createForest(1, 680, 685, 525, 530, 1);
-createTree.createForest(1, 450, 455, 535, 540, 1);
-createTree.createForest(25, 0, 210, 400, 451, 5);
-
-
 
 // ======================== DRAG EVACUATOR ===============================
 
@@ -1191,8 +1211,9 @@ function startGame() {
     startMenu.style.display = 'none';
     window.addEventListener('resize', startGame);
   } else if (window.innerHeight < window.innerWidth) {
-    launchGame();
     fullScreen(document.documentElement);
+    launchGame();
+    
   }
 }
 
@@ -1238,8 +1259,8 @@ evacuatorCarImage.addEventListener('touchstart', handleStart);
     evacuateBtn.addEventListener('click', evacuateCars);
   }
 
-
-function showTime() {
+resultGame = showTime(elapsedTime)
+function showTime(elapsedTime) {
   let gameTime = Math.floor(elapsedTime);
   let minutes = Math.floor(gameTime / 60);
   let seconds = gameTime % 60;
@@ -1247,8 +1268,9 @@ function showTime() {
   if (seconds < 10) seconds = '0' + seconds;
 
   timer.innerHTML = `${minutes}:${seconds}`
+  return `${minutes}:${seconds}`
 }
-showTime() 
+showTime(elapsedTime) 
 
 
 // function darkening() {
