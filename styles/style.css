@@ -289,7 +289,6 @@ body{
 
 
 
-
   @keyframes blink {
     0% { fill-opacity: 1; }
     25% { fill-opacity: 0.5; }
@@ -391,6 +390,8 @@ body{
   justify-content: center;
   flex-direction: column;
   gap: 10px;
+  width: 30%;
+  min-width: 150px;
 }
 .records-container{
   justify-content: center;
@@ -401,9 +402,14 @@ body{
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 50px;
+  width: 100%;
 }
 
+.pos, .name{
+  display: flex;
+  flex: 1;
+}
 .end-game {
   display: none;
   opacity: 1;
