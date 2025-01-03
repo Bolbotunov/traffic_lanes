@@ -1,72 +1,134 @@
-const serverURL = 'https://fe.it-academy.by/AjaxStringStorage2.php'
-const test = document.querySelector('.test-btn')
-const outputTest = document.querySelector('.output-test')
+const serverURL = 'https://fe.it-academy.by/AjaxStringStorage2.php';
+let records = document.querySelector('.records');
+let recordsName = document.querySelectorAll('.name');
+let nameValue = document.querySelector('.end-name');
+let recordsRes = document.querySelectorAll('.res');
+const recordsBtn = document.querySelector('.records-btn');
+let saveRecordBtn = document.querySelector('.save-record');
+let recordList = [];
 
-test.addEventListener('click', storeInfo)
-
+const stringName = 'BOLBOTUNOV_TRAFFICLANES_TEST';
 let updatePassword;
-const stringName = 'BOLBOTUNOV_TRAFFIC-LANES_TEST-SERVER';
+recordsBtn.addEventListener('click', showRecords);
+saveRecordBtn.addEventListener('click', saveRecord);
 
-function storeInfo() {
-    updatePassword = Math.random();
-    $.ajax( {
-            url: serverURL, type : 'POST', cache : false, dataType:'json',
-            data: { f : 'LOCKGET', n : stringName, p : updatePassword },
-            success: lockGetReady, error : errorHandler
-        }
-    );
+function showRecords() {
+  restoreInfo(() => {
+    startMenu.style.display = 'none';
+    gameContainer.style.display = 'none';
+    warningOrientation.style.display = 'none';
+    rules.style.display = 'none';
+    records.style.display = 'flex';
+    endMenu.style.display = 'none';
+    history.pushState({ page: 'records' }, 'Records', '#records');
+  });
 }
 
+function restoreInfo(callback) {
+  $.ajax({
+    url: serverURL,
+    type: 'POST',
+    cache: false,
+    dataType: 'json',
+    data: { f: 'READ', n: stringName },
+    success: (callresult) => {
+      readReady(callresult, callback);
+    },
+    error: errorHandler
+  });
+}
 
-function lockGetReady(callresult) {
-  if (callresult.error != undefined)
-      alert(callresult.error);
-  else {
-      const info = {
-          name : 'OLEG',
-          age : '22',
-      };
-      $.ajax( {
-              url : serverURL, type : 'POST', cache : false, dataType:'json',
-              data : { f : 'UPDATE', n : stringName,
-                  v : JSON.stringify(info), p : updatePassword },
-              success : updateReady, error : errorHandler
-          }
-      );
+function readReady(callresult, callback) {
+  if (callresult.error != undefined) {
+    alert(callresult.error);
+  } else if (callresult.result != "") {
+    recordList = JSON.parse(callresult.result);
+    updateRecordTable();
+    if (callback) callback();
+  }
+}
+
+function saveRecord() {
+  let newRecord = {
+    name: nameValue.value,
+    time: resultGame,
+  };
+
+  restoreInfo(() => {
+    if (recordList.length < 5 || timeToSeconds(newRecord.time) > timeToSeconds(recordList[recordList.length - 1].time)) {
+      if (recordList.length >= 5) {
+        recordList.pop();
+      }
+      recordList.push(newRecord);
+      recordList.sort((a, b) => timeToSeconds(b.time) - timeToSeconds(a.time));
+      storeInfo(() => {
+        showRecords();
+      });
+    }
+  });
+}
+
+function timeToSeconds(time) {
+  if (time === "--:--") return -1;
+  const [minutes, seconds] = time.split(':').map(Number);
+  return minutes * 60 + seconds;
+}
+
+function storeInfo(callback) {
+  updatePassword = Math.random();
+  $.ajax({
+    url: serverURL,
+    type: 'POST',
+    cache: false,
+    dataType: 'json',
+    data: { f: 'LOCKGET', n: stringName, p: updatePassword },
+    success: (callresult) => {
+      lockGetReady(callresult, callback);
+    },
+    error: errorHandler
+  });
+}
+
+function lockGetReady(callresult, callback) {
+  if (callresult.error != undefined) {
+    alert(callresult.error);
+  } else {
+    $.ajax({
+      url: serverURL,
+      type: 'POST',
+      cache: false,
+      dataType: 'json',
+      data: { f: 'UPDATE', n: stringName, v: JSON.stringify(recordList), p: updatePassword },
+      success: (callresult) => {
+        updateReady(callresult);
+        if (callback) callback();
+      },
+      error: errorHandler
+    });
   }
 }
 
 function updateReady(callresult) {
-  if ( callresult.error != undefined )
-      alert(callresult.error);
-}
-
-function restoreInfo() {
-  $.ajax(
-      {
-          url : serverURL, type : 'POST', cache : false, dataType:'json',
-          data : { f : 'READ', n : stringName },
-          success : readReady, error : errorHandler
-      }
-  );
-}
-
-function readReady(callresult) {
-  if ( callresult.error != undefined )
-      alert(callresult.error);
-  else if ( callresult.result != "" ) {
-      const info = JSON.parse(callresult.result);
-      outputTest = info.name;
+  if (callresult.error != undefined) {
+    alert(callresult.error);
   }
 }
 
 function errorHandler(jqXHR, statusStr, errorStr) {
-  alert(statusStr+' '+errorStr);
+  alert(statusStr + ' ' + errorStr);
 }
 
-restoreInfo();
-
-
+function updateRecordTable() {
+  recordsRes.forEach((item, index) => {
+    item.innerHTML = recordList[index] ? recordList[index].time : "--:--";
+  });
+  recordsName.forEach((item, index) => {
+    item.innerHTML = recordList[index] ? recordList[index].name : "--";
+  });
+}
+restoreInfo(() => {
+  updateRecordTable();
+});
 
 
 const body = document.body;
@@ -97,7 +159,7 @@ let startMenu = document.querySelector('.start-menu')
 let endMenu = document.querySelector('.end-game')
 let endScore = document.querySelector('.end-score')
 let rules = document.querySelector('.rules')
-let records = document.querySelector('.records')
+
 
 let previousOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
 window.addEventListener('resize', function() {
@@ -178,13 +240,20 @@ function evacuatorSoundFn() {
   evacuatorSound.play();
 }
 
-
 // ============= Навигация в приложении ===========================
 
-let saveRecordBtn = document.querySelector('.save-record')
-saveRecordBtn.addEventListener('click', function() {
-  showMenu()
-})
+
+function showRecords() {
+  restoreInfo()
+  startMenu.style.display = 'none';
+  gameContainer.style.display = 'none';
+  warningOrientation.style.display = 'none';
+  rules.style.display = 'none';
+  records.style.display = 'flex';
+  endMenu.style.display = 'none';
+ 
+  history.pushState({page: 'records'}, 'Records', '#records');
+}
 
 function showMenu() {
   startMenu.style.display = 'flex';
@@ -206,14 +275,7 @@ function showRules() {
   history.pushState({page: 'rules'}, 'Rules', '#rules');
 }
 
-function showRecords() {
-  startMenu.style.display = 'none';
-  gameContainer.style.display = 'none';
-  warningOrientation.style.display = 'none';
-  rules.style.display = 'none';
-  records.style.display = 'flex';
-  history.pushState({page: 'records'}, 'Records', '#records');
-}
+
 
 function endGame() {
   backgroundTraffic.loop = false
@@ -274,12 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
   backToMenu = document.querySelector('.back-to-menu')
   pause = document.querySelector('.pause')
   start = document.querySelector('.start-btn')
-  const recordsBtn = document.querySelector('.records-btn');
   const rulesBtn = document.querySelector('.rules-btn');
 
   start.addEventListener('click', startGame);
   pause.addEventListener('click', togglePause);
-  recordsBtn.addEventListener('click', showRecords)
+  
   rulesBtn.addEventListener('click', showRules)
   back.forEach((btn) => {
     btn.addEventListener('click', showMenu)
@@ -1018,8 +1079,6 @@ function handleStart(e) {
   let startTapY = e.touches ? e.touches[0].clientY : e.clientY;
   startX = startTapX - initialX;
   startY = startTapY - initialY;
-  console.log(startTapX);
-  console.log(startTapY);
   
   document.addEventListener('mousemove', moveFn);
   document.addEventListener('mouseup', handleEndFn);
@@ -1097,7 +1156,7 @@ function evacuateCars() {
   backgroundTraffic.volume = 0.6
   backgroundTraffic.play()
   evacuatorSoundFn()
-  if (countEvacuate === 3) {
+  if (countEvacuate === 1) {
     // pauseGame()
     endGame()
     backgroundTraffic.pause()
@@ -1115,104 +1174,6 @@ function evacuateCars() {
   setTimeout(resetPosition, 2500)
   
 }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-//     console.log('Устройство поддерживает события касания');
-//   } else {
-//     console.log('Устройство не поддерживает события касания');
-//   }
-
-//   let evacuatorCarImage = document.querySelector('.evacuator-block');
-
-//   if (evacuatorCarImage) {
-//     console.log('Элемент найден');
-//     evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-//     evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
-//     evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
-//   } else {
-//     console.log('Элемент .evacuator-block не найден');
-//   }
-
-//   function handleTouchStart(e) {
-//     e.preventDefault();
-//     console.log('начало касания');
-//   }
-
-//   function handleTouchMove(e) {
-//     e.preventDefault();
-//     console.log('движение касания');
-//   }
-
-//   function handleTouchEnd(e) {
-//     e.preventDefault();
-//     console.log('конец касания');
-//   }
-// });
-
-
-
-
-
-// ======= ЖЕСТЫ ==============
-
-// let touchStartX = 0;
-// let touchStartY = 0;
-// let touchEndX = 0;
-// let touchEndY = 0;
-// let touchPoints = [];
-
-
-// function handleTouchStart(e) {
-//   e.preventDefault()
-//   console.log('жест')
-//   // touchPoints = [];
-//   // let touch = e.touches[0];
-//   // touchStartX = touch.clientX;
-//   // touchStartY = touch.clientY;
-//   // touchPoints.push({ x: touchStartX, y: touchStartY });
-// }
-
-// // function handleTouchMove(e) {
-// //   e.preventDefault()
-// //   let touch = e.touches[0];
-// //   touchEndX = touch.clientX;
-// //   touchEndY = touch.clientY;
-// //   touchPoints.push({ x: touchEndX, y: touchEndY });
-// // }
-
-// // function handleTouchEnd() {
-// //   e.preventDefault()
-// //   if (isSwipeRightToLeft(touchPoints)) {
-// //     moveCarToTarget();
-// //   }
-// // }
-
-// // function isSwipeRightToLeft(points) {
-// //   if (points.length < 2) {
-// //     return false;
-// //   }
-
-// //   let dx = points[points.length - 1].x - points[0].x;
-// //   let dy = points[points.length - 1].y - points[0].y;
-
-// //   // Проверка на горизонтальный свайп справа налево, покрывающий более половины ширины экрана
-// //   return dx < 0 && Math.abs(dx) > window.innerWidth / 2 && Math.abs(dx) > Math.abs(dy);
-// // }
-
-// // function moveCarToTarget() {
-
-// //   let targetX = 100;
-// //   let targetY = 100;
-// //   evacuatorCarImage.style.transform = `translate(${targetX}px, ${targetY}px)`;
-// //   console.log('жест')
-// // }
-
-// evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
-// // evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
-// // evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
-
-
 
 // ======= Облака =============
 
@@ -1262,7 +1223,6 @@ function startGame() {
   } else if (window.innerHeight < window.innerWidth) {
     fullScreen(document.documentElement);
     launchGame();
-    
   }
 }
 
@@ -1374,4 +1334,3 @@ if (elapsedTime - checkSoundTime > 20) {
     
   }
 }
-
