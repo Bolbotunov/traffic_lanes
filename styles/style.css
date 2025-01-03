@@ -374,7 +374,7 @@ body{
   width: 100%;
 }
 
-.back {
+.back, .save-record {
   width: 150px;
   max-width: 100%;
 }
