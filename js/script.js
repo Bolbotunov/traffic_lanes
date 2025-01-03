@@ -1,6 +1,78 @@
+const serverURL = 'https://fe.it-academy.by/AjaxStringStorage2.php'
+const test = document.querySelector('.test-btn')
+const outputTest = document.querySelector('.output-test')
+
+test.addEventListener('click', storeInfo)
+
+let updatePassword;
+const stringName = 'BOLBOTUNOV_TRAFFIC-LANES_TEST-SERVER';
+
+function storeInfo() {
+    updatePassword = Math.random();
+    $.ajax( {
+            url: serverURL, type : 'POST', cache : false, dataType:'json',
+            data: { f : 'LOCKGET', n : stringName, p : updatePassword },
+            success: lockGetReady, error : errorHandler
+        }
+    );
+}
+
+
+function lockGetReady(callresult) {
+  if (callresult.error != undefined)
+      alert(callresult.error);
+  else {
+      const info = {
+          name : 'OLEG',
+          age : '22',
+      };
+      $.ajax( {
+              url : serverURL, type : 'POST', cache : false, dataType:'json',
+              data : { f : 'UPDATE', n : stringName,
+                  v : JSON.stringify(info), p : updatePassword },
+              success : updateReady, error : errorHandler
+          }
+      );
+  }
+}
+
+function updateReady(callresult) {
+  if ( callresult.error != undefined )
+      alert(callresult.error);
+}
+
+function restoreInfo() {
+  $.ajax(
+      {
+          url : serverURL, type : 'POST', cache : false, dataType:'json',
+          data : { f : 'READ', n : stringName },
+          success : readReady, error : errorHandler
+      }
+  );
+}
+
+function readReady(callresult) {
+  if ( callresult.error != undefined )
+      alert(callresult.error);
+  else if ( callresult.result != "" ) {
+      const info = JSON.parse(callresult.result);
+      outputTest = info.name;
+  }
+}
+
+function errorHandler(jqXHR, statusStr, errorStr) {
+  alert(statusStr+' '+errorStr);
+}
+
+restoreInfo();
+
+
+
+
 const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
+// let night = document.querySelector('.layout')
 let logo = document.querySelector('.logo-container')
 let menuBtnsContainer = document.querySelector('.menu-btn-container')
 let evacuateBtn = document.querySelector('.evacuate-btn')
@@ -11,21 +83,12 @@ let sizeFieldH = 600
 let sizeFieldW = 700
 let timer = document.querySelector('.menu-timer')
 let timeFromStart = 0
-let night = document.querySelector('.layout')
-let gameOrientation = window.screen.orientation;
 let warningOrientation = document.querySelector('.orientation-warning')
-const backgroundTraffic = new Audio('assets/traffic.mp3');
-const tapSound = new Audio('assets/tap.wav');
-let birdsSound
-let backgroundMusic
-let isAudioPlayed
 let lives = document.querySelectorAll('.lives img');
-backgroundTraffic.loop = true;
-
-let isPaused = false;
 let isVibrating = false;
 let start
 let pause
+let isPaused = false;
 let back
 let backToMenu
 let resultGame
@@ -37,28 +100,91 @@ let rules = document.querySelector('.rules')
 let records = document.querySelector('.records')
 
 let previousOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-
 window.addEventListener('resize', function() {
   let currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-
   if (currentOrientation !== previousOrientation) {
     previousOrientation = currentOrientation;
-    console.log("Screen orientation changed to:", currentOrientation);
+    console.log("изменено на", currentOrientation);
   }
 });
-
-
-
 
 window.addEventListener('beforeunload', function (event) {
+  event.preventDefault();
   if (location.hash === '#menu') {
     return
+  } else if (location.hash === '#game') {
+    event.returnValue = 'У вас есть несохраненные изменения. Вы действительно хотите уйти?'
   }
-  event.preventDefault();
-  event.returnValue = 'У вас есть несохраненные изменения. Вы действительно хотите уйти?';
 });
 
 
+// ============ ЗВУКИ ===============
+let isAudioPlayed
+let birdsSound
+let backgroundMusic
+const backgroundTraffic = new Audio('assets/traffic.mp3');
+// backgroundTraffic.play()
+// backgroundTraffic.pause()
+const tapSound = new Audio('assets/tap.wav');
+const crushSound = new Audio(`assets/crushSound.mp3`);
+// crushSound.play()
+// crushSound.pause()
+const beepSound = new Audio('assets/beepSound.mp3');
+// beepSound.play()
+// beepSound.pause()
+const evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
+// evacuatorSound.play()
+// evacuatorSound.pause()
+
+function gameSoundFn() {
+  let randomSound = Math.floor(Math.random() * 4) + 1;
+  backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
+  backgroundMusic.currentTime = 0;
+  backgroundMusic.play();
+  backgroundMusic.volume = 0.7
+  backgroundMusic.loop = true;
+}
+
+function crushSoundFn() {
+  if(isAudioPlayed) {
+    return
+  } else {
+    crushSound.currentTime = 0;
+    crushSound.volume = 0.6
+    crushSound.play();
+    isAudioPlayed = true;
+    beepSound.volume = 0.6
+    beepSound.play()
+    beepSound.currentTime = 0
+  }
+}
+
+let allBtns = document.querySelectorAll('.menu-btn')
+allBtns.forEach((btns)=> btns.addEventListener('click', function tapSoundFn() {
+  tapSound.currentTime = 0;
+  tapSound.play();
+}))
+
+
+function birdsSoundFn() {
+  let randomSound = Math.floor(Math.random() * 2) + 1;
+  birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
+  birdsSound.currentTime = 0;
+  birdsSound.play();
+}
+
+function evacuatorSoundFn() {
+  evacuatorSound.currentTime = 0;
+  evacuatorSound.play();
+}
+
+
+// ============= Навигация в приложении ===========================
+
+let saveRecordBtn = document.querySelector('.save-record')
+saveRecordBtn.addEventListener('click', function() {
+  showMenu()
+})
 
 function showMenu() {
   startMenu.style.display = 'flex';
@@ -90,6 +216,9 @@ function showRecords() {
 }
 
 function endGame() {
+  backgroundTraffic.loop = false
+  backgroundTraffic.pause()
+  evacuatorSound.pause()
   startMenu.style.display = 'none';
   warningOrientation.style.display = 'none';
   rules.style.display = 'none';
@@ -112,15 +241,6 @@ function stopGame() {
     window.location.reload();
 }
 
-// function backToMenuFn() {
-//   startMenu.style.display = 'flex';
-//   gameContainer.style.display = 'none';
-//   warningOrientation.style.display = 'none';
-//   records.style.display = 'none';
-//   history.pushState({page: 'menu'}, 'Menu', '#menu');
-//   stopGame()
-// }
-
 function togglePause() {
   if (isPaused) {
     resumeGame()
@@ -137,9 +257,7 @@ function pauseGame() {
   backgroundTraffic.pause();
   backgroundMusic.pause();
   fieldSVG.style.pointerEvents = 'none'
-  // rightNav.style.pointerEvents = 'none'
   clearInterval(gameInterval);
-  
 }
 
 function resumeGame() {
@@ -184,8 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (warningExit) {
         showMenu()
         stopGame()
-      } else {
-        history.pushState({page: 'game'}, 'Game', '#game');
       }
     } else {
       switch (event.state.page) {
@@ -212,95 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 })
 
-
-// ============ ЗВУКИ ===============
-
-
-function gameSoundFn() {
-  let randomSound = Math.floor(Math.random() * 4) + 1;
-  backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
-  backgroundMusic.currentTime = 0;
-  backgroundMusic.play();
-  backgroundMusic.volume = 0.7
-  backgroundMusic.loop = true;
-}
-
-function crushSoundFn() {
-  if(isAudioPlayed) {
-    return
-  } else {
-    const crushSound = new Audio(`assets/crushSound.mp3`);
-    crushSound.currentTime = 0;
-    crushSound.volume = 0.6
-    crushSound.play();
-    isAudioPlayed = true;
-    const beepSound = new Audio('assets/beepSound.mp3');
-    beepSound.volume = 0.6
-    beepSound.play()
-    beepSound.currentTime = 0
-  }
-}
-
-let allBtns = document.querySelectorAll('.menu-btn')
-allBtns.forEach((btns)=> btns.addEventListener('click', function tapSoundFn() {
-  tapSound.currentTime = 0;
-  tapSound.play();
-}))
-
-
-function birdsSoundFn() {
-  let randomSound = Math.floor(Math.random() * 2) + 1;
-  birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
-  birdsSound.currentTime = 0;
-  birdsSound.play();
-}
-
-function evacuatorSoundFn() {
-  let evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
-  evacuatorSound.currentTime = 0;
-  evacuatorSound.play();
-}
 // ================================================
-
-
-// function updateSizes() {
-//   console.log(2)
-//   const fieldHeight = window.innerWidth * 0.75;
-//   const menuWidth = window.innerWidth * 0.4;
-//   gameField.style.setProperty('--field-height', `${fieldHeight}px`);
-//   menuBtnsContainer.style.setProperty('--menu-width', `${menuWidth}px`)
-// }
-// updateSizes()
-
-
-
-
-// if (gameOrientation.type === 'portrait-primary' && window.innerWidth < 600) {
-//   console.log(1)
-//   warningOrientation.style.display = 'none'
-//   startMenu.style.display = 'flex'
-// }
-
-
-
-// function getViewportSize() {
-//   const width = window.innerWidth;
-//   const height = window.innerHeight;
-//   console.log(`Ширина видимой области: ${width}px`);
-//   console.log(`Высота видимой области: ${height}px`);
-// }
-
-// function handleResize() {
-//   const width = window.innerWidth;
-//   const height = window.innerHeight;
-//   console.log(`Ширина видимой области после изменения: ${width}px`);
-//   console.log(`Высота видимой области после изменения: ${height}px`);
-// }
-
-// getViewportSize();
-// window.addEventListener('resize', handleResize);
-
-
 
 function fullScreen(element) {
   if (element.requestFullscreen) {
@@ -773,7 +801,6 @@ function vibrating(vibro) {
   if ("vibrate" in navigator) {
     if (vibro) {
       navigator.vibrate(400);
-      console.log('ok')
     }
 }
 }
@@ -804,7 +831,7 @@ function checkCollision(car1, car2) {
   relativeTop2 = rect2.top / window.innerHeight * 100
   relativeBottom2 = rect2.bottom / window.innerHeight * 100
 
-  const margin = 0.7;
+  const margin = 0.8;
 
   return (
     (relativeLeft1 > 35 && relativeLeft1 < 65 || relativeLeft2 > 35 && relativeLeft2 < 65) &&
@@ -1046,10 +1073,8 @@ function handleEndFn(e) {
 function resetPosition() {
   initialX = 0;
   initialY = 0;
-  backgroundTraffic.volume = 0.7
   canMove = false
   loadEvacuator = false
-  backgroundTraffic.play()
   evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
   backTimer.style.display = 'none'
   isAudioPlayed = false
@@ -1069,9 +1094,14 @@ let lostLife
 function evacuateCars() {
   countEvacuate += 1
   isVibrating = false
+  backgroundTraffic.volume = 0.6
+  backgroundTraffic.play()
+  evacuatorSoundFn()
   if (countEvacuate === 3) {
-    pauseGame()
+    // pauseGame()
     endGame()
+    backgroundTraffic.pause()
+    backgroundTraffic.loop = false
   }
   
   backTimer.style.display = 'flex'
@@ -1082,7 +1112,6 @@ function evacuateCars() {
       parameters = lives[lives.length - countEvacuate]
       lostLife = parameters.setAttribute('src', 'assets/lifeLost.png');
     }
-  evacuatorSoundFn()
   setTimeout(resetPosition, 2500)
   
 }
@@ -1244,6 +1273,7 @@ function launchGame() {
     startMenu.style.display = 'none';
     gameSoundFn();
     backgroundTraffic.play();
+    backgroundTraffic.loop = true;
     backgroundTraffic.volume = 0.6;
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
@@ -1264,7 +1294,7 @@ function gameTimer() {
   } else {
     evacuateBtn.disabled = true
   }
-console.log(loadEvacuator)
+
   if (elapsedTime - fogTimeLine >= 15 && arrFogs.length < 3) {
     let randomY = Math.floor(Math.random() * 300);
     let randomWidth = Math.floor(Math.random() * 700) + 100;
