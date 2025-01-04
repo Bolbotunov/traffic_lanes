@@ -352,6 +352,7 @@ body{
   width: 100vw;
   transition: .5s all;
 }
+
 .rules-container, .records-container, .end-container {
   display: flex;
   align-items: center;
@@ -371,8 +372,16 @@ body{
   align-items: center;
   justify-content: center;
   width: 100%;
+
 }
 
+.rules-content li{
+  padding: 10px;
+}
+.rules-container{
+  height: 100vh;
+  overflow-y: auto;
+}
 .back, .save-record {
   width: 150px;
   max-width: 100%;
@@ -538,7 +547,7 @@ body{
     padding: 10px;
   }
   .field {
-    max-width: 52vw;
+    max-width: 49vw;
   }
 }
 

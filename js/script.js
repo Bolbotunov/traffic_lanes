@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', function() {
 const serverURL = 'https://fe.it-academy.by/AjaxStringStorage2.php';
 let records = document.querySelector('.records');
 let recordsName = document.querySelectorAll('.name');
@@ -7,13 +8,14 @@ const recordsBtn = document.querySelector('.records-btn');
 let saveRecordBtn = document.querySelector('.save-record');
 let recordList = [];
 
+
 const stringName = 'BOLBOTUNOV_TRAFFICLANES_TEST';
 let updatePassword;
 recordsBtn.addEventListener('click', showRecords);
 saveRecordBtn.addEventListener('click', saveRecord);
 
 function showRecords() {
-  restoreInfo(() => {
+  restoreInfo(() => { 
     startMenu.style.display = 'none';
     gameContainer.style.display = 'none';
     warningOrientation.style.display = 'none';
@@ -21,7 +23,7 @@ function showRecords() {
     records.style.display = 'flex';
     endMenu.style.display = 'none';
     history.pushState({ page: 'records' }, 'Records', '#records');
-  });
+  })
 }
 
 function restoreInfo(callback) {
@@ -54,18 +56,27 @@ function saveRecord() {
     time: resultGame,
   };
 
+
   restoreInfo(() => {
-    if (recordList.length < 5 || timeToSeconds(newRecord.time) > timeToSeconds(recordList[recordList.length - 1].time)) {
+    if (timeToSeconds(newRecord.time) > timeToSeconds(recordList[recordList.length - 1].time)) {
       if (recordList.length >= 5) {
         recordList.pop();
       }
       recordList.push(newRecord);
       recordList.sort((a, b) => timeToSeconds(b.time) - timeToSeconds(a.time));
       storeInfo(() => {
-        showRecords();
+        restoreInfo(() => {
+          showRecords();
+        }) 
+      });
+    } else {
+      restoreInfo(() => {
+        showRecords()
       });
     }
   });
+  showMenu()
+  resetGame()
 }
 
 function timeToSeconds(time) {
@@ -131,6 +142,17 @@ restoreInfo(() => {
 });
 
 
+// function clearRecordTable() {
+//   recordList = [
+//   { "name": "--", "time": "--:--" },
+// { "name": "--", "time": "--:--" },
+// { "name": "--", "time": "--:--" },
+// { "name": "--", "time": "--:--" },
+// { "name": "--", "time": "--:--" } ];
+// storeInfo(updateRecordTable);
+// }
+// clearRecordTable();
+
 const body = document.body;
 const gameField = document.querySelector('.field')
 gameField.style.position = 'relative'
@@ -147,6 +169,7 @@ let timer = document.querySelector('.menu-timer')
 let timeFromStart = 0
 let warningOrientation = document.querySelector('.orientation-warning')
 let lives = document.querySelectorAll('.lives img');
+let lostLife
 let isVibrating = false;
 let start
 let pause
@@ -176,6 +199,8 @@ window.addEventListener('beforeunload', function (event) {
     return
   } else if (location.hash === '#game') {
     event.returnValue = 'У вас есть несохраненные изменения. Вы действительно хотите уйти?'
+  } else if (location.hash === '#endGame') {
+    return
   }
 });
 
@@ -242,19 +267,6 @@ function evacuatorSoundFn() {
 
 // ============= Навигация в приложении ===========================
 
-
-function showRecords() {
-  restoreInfo()
-  startMenu.style.display = 'none';
-  gameContainer.style.display = 'none';
-  warningOrientation.style.display = 'none';
-  rules.style.display = 'none';
-  records.style.display = 'flex';
-  endMenu.style.display = 'none';
- 
-  history.pushState({page: 'records'}, 'Records', '#records');
-}
-
 function showMenu() {
   startMenu.style.display = 'flex';
   gameContainer.style.display = 'none';
@@ -279,8 +291,8 @@ function showRules() {
 
 function endGame() {
   backgroundTraffic.loop = false
-  backgroundTraffic.pause()
-  evacuatorSound.pause()
+  // backgroundTraffic.pause()
+  // evacuatorSound.pause()
   startMenu.style.display = 'none';
   warningOrientation.style.display = 'none';
   rules.style.display = 'none';
@@ -289,6 +301,7 @@ function endGame() {
   endMenu.style.display = 'flex';
   endScore.innerHTML = `ваше время: ${resultGame}`
   history.pushState({page: 'endGame'}, 'endGame', '#endGame');
+  
 }
 
 function showWarning() {
@@ -302,6 +315,8 @@ function showWarning() {
 function stopGame() {
     window.location.reload();
 }
+
+
 
 function togglePause() {
   if (isPaused) {
@@ -330,8 +345,29 @@ function resumeGame() {
   pause.style.backgroundColor = '#daf2b5'
   gameInterval = setInterval(gameTimer, 1000 / 60);
 }
+function resetGame() {
+  isPaused = false;
+  pause.innerHTML = 'пауза'
+  backgroundTraffic.pause();
+  backgroundMusic.pause();
+  clearInterval(gameInterval);
+  const carElements = document.querySelectorAll('.allCars');
+  carElements.forEach(carElement => {
+    carElement.remove();
+  });
 
-document.addEventListener('DOMContentLoaded', function() {
+  cars = [];
+  elapsedTime = 0;
+  checkTime = 0;
+  timer.innerHTML = '00:00';
+  gameInterval = false;
+  countEvacuate = 0
+  lives.forEach((item) => {
+    item.setAttribute('src', 'assets/lifeRemain.png');
+  })
+  nameValue.value = ''
+}
+
   back = document.querySelectorAll('.back')
   backToMenu = document.querySelector('.back-to-menu')
   pause = document.querySelector('.pause')
@@ -387,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
-})
+
 
 // ================================================
 
@@ -440,7 +476,7 @@ class Road {
     let route = document.createElementNS("http://www.w3.org/2000/svg", "path");
     route.setAttribute('id', id);
     route.setAttribute('d', pathCoordinates);
-    route.setAttribute('stroke', stroke);
+    // route.setAttribute('stroke', stroke);
     route.setAttribute('fill', 'transparent');
     fieldSVG.appendChild(route);
     let pathLength = route.getTotalLength();
@@ -617,7 +653,7 @@ roadPath.createPath('route3', 'M0 410 L 380 410 C 380 409, 450 430, 448 280 L 44
 
 roadPath.createPath('route5', 'M900 385 L 0 385', 'grey');
 roadPath.createPath('route6', 'M900 385 L 480 385 C 425 310, 462 340, 444 0 L 444 0', 'green');
-roadPath.createPath('route4', 'M900 385 L 480 385 C 440 410, 420 440, 424 480 L 424 840', 'red');
+roadPath.createPath('route4', 'M900 385 L 480 385 C 440 390, 420 440, 424 480 L 424 840', 'red');
 
 
 roadPath.createPath('route7', 'M425 0 L 425 810', 'pink');
@@ -691,7 +727,7 @@ let trafficLightsArray = [];
 let loadEvacuator = false
 
 class Auto {
-  constructor(route, typeCar, speed, IsTurns, crash) {
+  constructor(route, typeCar, speed, IsTurns, crash, addClass) {
     this.route = route;
     this.typeCar = typeCar;
     this.rotateCar = 0
@@ -703,10 +739,12 @@ class Auto {
     this.crash = crash
     this.stoppedTime = null
     this.waitingTime = 15
+    this.addClass = addClass
   }
 
   createAuto() {
     const groupImages = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    groupImages.classList.add(this.addClass)
     const auto = document.createElementNS("http://www.w3.org/2000/svg", "image");
     auto.setAttribute('href', this.typeCar);
     auto.setAttribute('width', '30');
@@ -822,7 +860,7 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       trafficLightsArray.forEach((item) => {
         item.setRed();
       });
-      backgroundTraffic.pause()
+      // backgroundTraffic.pause()
     }
   });
   
@@ -1146,23 +1184,13 @@ function resetPosition() {
 }
 
 let countEvacuate = 0
-let lostLife
 
-
-  
 function evacuateCars() {
   countEvacuate += 1
   isVibrating = false
   backgroundTraffic.volume = 0.6
   backgroundTraffic.play()
   evacuatorSoundFn()
-  if (countEvacuate === 1) {
-    // pauseGame()
-    endGame()
-    backgroundTraffic.pause()
-    backgroundTraffic.loop = false
-  }
-  
   backTimer.style.display = 'flex'
   backTimerFill.style.animation = 'fillTimer 2500ms forwards';
   backTimerFill.classList.add = 'fill-timer'
@@ -1170,6 +1198,12 @@ function evacuateCars() {
     for (let i = 0; i < countEvacuate; i++) {
       parameters = lives[lives.length - countEvacuate]
       lostLife = parameters.setAttribute('src', 'assets/lifeLost.png');
+    }
+    if (countEvacuate === 3) {
+      // backgroundTraffic.pause()
+      pauseGame()
+      endGame()
+      backgroundTraffic.loop = false
     }
   setTimeout(resetPosition, 2500)
   
@@ -1236,7 +1270,8 @@ function launchGame() {
     backgroundTraffic.loop = true;
     backgroundTraffic.volume = 0.6;
     gameInterval = setInterval(gameTimer, 1000 / 60);
-  }
+    checkTime = 0;
+  } 
 }
 
 
@@ -1326,7 +1361,7 @@ if (elapsedTime - checkSoundTime > 20) {
     if (cars.length > 70) {
       return
     } else {
-      let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false).createAuto()
+      let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false, 'allCars').createAuto()
       cars.push(newAuto);
     }
     
@@ -1334,3 +1369,8 @@ if (elapsedTime - checkSoundTime > 20) {
     
   }
 }
+
+
+
+})
+
