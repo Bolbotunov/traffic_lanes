@@ -8,8 +8,8 @@ const recordsBtn = document.querySelector('.records-btn');
 let saveRecordBtn = document.querySelector('.save-record');
 let recordList = [];
 
-
 const stringName = 'BOLBOTUNOV_TRAFFICLANES_TEST';
+
 let updatePassword;
 recordsBtn.addEventListener('click', showRecords);
 saveRecordBtn.addEventListener('click', saveRecord);
@@ -42,7 +42,7 @@ function restoreInfo(callback) {
 
 function readReady(callresult, callback) {
   if (callresult.error != undefined) {
-    alert(callresult.error);
+    // alert(callresult.error);
   } else if (callresult.result != "") {
     recordList = JSON.parse(callresult.result);
     updateRecordTable();
@@ -102,7 +102,7 @@ function storeInfo(callback) {
 
 function lockGetReady(callresult, callback) {
   if (callresult.error != undefined) {
-    alert(callresult.error);
+    // alert(callresult.error);
   } else {
     $.ajax({
       url: serverURL,
@@ -121,12 +121,12 @@ function lockGetReady(callresult, callback) {
 
 function updateReady(callresult) {
   if (callresult.error != undefined) {
-    alert(callresult.error);
+    // alert(callresult.error);
   }
 }
 
 function errorHandler(jqXHR, statusStr, errorStr) {
-  alert(statusStr + ' ' + errorStr);
+  // alert(statusStr + ' ' + errorStr);
 }
 
 function updateRecordTable() {
@@ -189,7 +189,6 @@ window.addEventListener('resize', function() {
   let currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
   if (currentOrientation !== previousOrientation) {
     previousOrientation = currentOrientation;
-    console.log("изменено на", currentOrientation);
   }
 });
 
@@ -210,25 +209,16 @@ let isAudioPlayed
 let birdsSound
 let backgroundMusic
 const backgroundTraffic = new Audio('assets/traffic.mp3');
-// backgroundTraffic.play()
-// backgroundTraffic.pause()
 const tapSound = new Audio('assets/tap.wav');
 const crushSound = new Audio(`assets/crushSound.mp3`);
-// crushSound.play()
-// crushSound.pause()
 const beepSound = new Audio('assets/beepSound.mp3');
-// beepSound.play()
-// beepSound.pause()
 const evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
-// evacuatorSound.play()
-// evacuatorSound.pause()
 
 function gameSoundFn() {
   let randomSound = Math.floor(Math.random() * 4) + 1;
   backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
   backgroundMusic.currentTime = 0;
   backgroundMusic.play();
-  backgroundMusic.volume = 0.7
   backgroundMusic.loop = true;
 }
 
@@ -237,10 +227,10 @@ function crushSoundFn() {
     return
   } else {
     crushSound.currentTime = 0;
-    crushSound.volume = 0.6
+    crushSound.volume = 0.5
     crushSound.play();
     isAudioPlayed = true;
-    beepSound.volume = 0.6
+    beepSound.volume = 0.5
     beepSound.play()
     beepSound.currentTime = 0
   }
@@ -258,6 +248,7 @@ function birdsSoundFn() {
   birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
   birdsSound.currentTime = 0;
   birdsSound.play();
+  birdsSound.volume = 0.4
 }
 
 function evacuatorSoundFn() {
@@ -328,6 +319,17 @@ function togglePause() {
 }
 
 function pauseGame() {
+  if (innerWidth < 500 && window.innerHeight > window.innerWidth) {
+    warningOrientation.style.display = 'flex';
+    gameContainer.style.display = 'none';
+    startMenu.style.display = 'none';
+    window.addEventListener('resize', resumeGame);
+  } else {
+    warningOrientation.style.display = 'none';
+    gameContainer.style.display = 'flex';
+    startMenu.style.display = 'none';
+    
+  }
   isPaused = true;
   pause.style.backgroundColor = '#da7509'
   pause.innerHTML = 'играть'
@@ -711,7 +713,6 @@ createTree.createForest(25, 0, 210, 400, 451, 5);
 
 
 
-
 // ================Машинки=================================
 
 let elapsedTime = 0;
@@ -738,7 +739,7 @@ class Auto {
     this.prevPoint = { x: 0, y: 0 };
     this.crash = crash
     this.stoppedTime = null
-    this.waitingTime = 15
+    this.waitingTime = 14
     this.addClass = addClass
   }
 
@@ -860,7 +861,6 @@ const group = document.querySelector(`g[id="${this.route}"]`);
       trafficLightsArray.forEach((item) => {
         item.setRed();
       });
-      // backgroundTraffic.pause()
     }
   });
   
@@ -1188,7 +1188,7 @@ let countEvacuate = 0
 function evacuateCars() {
   countEvacuate += 1
   isVibrating = false
-  backgroundTraffic.volume = 0.6
+  backgroundTraffic.volume = 0.3
   backgroundTraffic.play()
   evacuatorSoundFn()
   backTimer.style.display = 'flex'
@@ -1200,7 +1200,6 @@ function evacuateCars() {
       lostLife = parameters.setAttribute('src', 'assets/lifeLost.png');
     }
     if (countEvacuate === 3) {
-      // backgroundTraffic.pause()
       pauseGame()
       endGame()
       backgroundTraffic.loop = false
@@ -1268,7 +1267,7 @@ function launchGame() {
     gameSoundFn();
     backgroundTraffic.play();
     backgroundTraffic.loop = true;
-    backgroundTraffic.volume = 0.6;
+    backgroundTraffic.volume = 0.4;
     gameInterval = setInterval(gameTimer, 1000 / 60);
     checkTime = 0;
   } 
@@ -1277,6 +1276,7 @@ function launchGame() {
 
 
 function gameTimer() {
+  window.addEventListener('resize', pauseGame);
   elapsedTime += 1 / 60;
   const carsImg = 4;
   cars.forEach(car => {
@@ -1358,7 +1358,7 @@ if (elapsedTime - checkSoundTime > 20) {
       12: toRight,
     }
     whereTurns = turnDirection[randomRoute];
-    if (cars.length > 70) {
+    if (cars.length > 60) {
       return
     } else {
       let newAuto = new Auto(`#route${randomRoute}`, `assets/car${randomImg}.png`, 2.5, whereTurns, false, 'allCars').createAuto()
@@ -1373,4 +1373,103 @@ if (elapsedTime - checkSoundTime > 20) {
 
 
 })
+
+
+
+// document.addEventListener('DOMContentLoaded', function() {
+//   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+//     console.log('Устройство поддерживает события касания');
+//   } else {
+//     console.log('Устройство не поддерживает события касания');
+//   }
+
+//   let evacuatorCarImage = document.querySelector('.evacuator-block');
+
+//   if (evacuatorCarImage) {
+//     console.log('Элемент найден');
+//     evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+//     evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+//     evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+//   } else {
+//     console.log('Элемент .evacuator-block не найден');
+//   }
+
+//   function handleTouchStart(e) {
+//     e.preventDefault();
+//     console.log('начало касания');
+//   }
+
+//   function handleTouchMove(e) {
+//     e.preventDefault();
+//     console.log('движение касания');
+//   }
+
+//   function handleTouchEnd(e) {
+//     e.preventDefault();
+//     console.log('конец касания');
+//   }
+// });
+
+
+
+
+
+// ======= ЖЕСТЫ ==============
+
+// let touchStartX = 0;
+// let touchStartY = 0;
+// let touchEndX = 0;
+// let touchEndY = 0;
+// let touchPoints = [];
+
+
+// function handleTouchStart(e) {
+//   e.preventDefault()
+//   console.log('жест')
+//   // touchPoints = [];
+//   // let touch = e.touches[0];
+//   // touchStartX = touch.clientX;
+//   // touchStartY = touch.clientY;
+//   // touchPoints.push({ x: touchStartX, y: touchStartY });
+// }
+
+// // function handleTouchMove(e) {
+// //   e.preventDefault()
+// //   let touch = e.touches[0];
+// //   touchEndX = touch.clientX;
+// //   touchEndY = touch.clientY;
+// //   touchPoints.push({ x: touchEndX, y: touchEndY });
+// // }
+
+// // function handleTouchEnd() {
+// //   e.preventDefault()
+// //   if (isSwipeRightToLeft(touchPoints)) {
+// //     moveCarToTarget();
+// //   }
+// // }
+
+// // function isSwipeRightToLeft(points) {
+// //   if (points.length < 2) {
+// //     return false;
+// //   }
+
+// //   let dx = points[points.length - 1].x - points[0].x;
+// //   let dy = points[points.length - 1].y - points[0].y;
+
+// //   // Проверка на горизонтальный свайп справа налево, покрывающий более половины ширины экрана
+// //   return dx < 0 && Math.abs(dx) > window.innerWidth / 2 && Math.abs(dx) > Math.abs(dy);
+// // }
+
+// // function moveCarToTarget() {
+
+// //   let targetX = 100;
+// //   let targetY = 100;
+// //   evacuatorCarImage.style.transform = `translate(${targetX}px, ${targetY}px)`;
+// //   console.log('жест')
+// // }
+
+// evacuatorCarImage.addEventListener('touchstart', handleTouchStart);
+// // evacuatorCarImage.addEventListener('touchmove', handleTouchMove);
+// // evacuatorCarImage.addEventListener('touchend', handleTouchEnd);
+
 

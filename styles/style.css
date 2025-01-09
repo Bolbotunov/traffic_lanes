@@ -243,17 +243,18 @@ body{
 
   .backTimer span {
     width: 0%;
-    background-color: green;
-    transition: .3s ease-in;
+    transition: 2500ms ease-in;
 
   }
 
   @keyframes fillTimer {
     from {
       width: 0%;
+      background-color: rgb(252, 1, 1);
     }
     to {
       width: 100%;
+      background-color: rgb(238, 255, 0);
     }
   }
   
@@ -343,6 +344,12 @@ body{
 
 .orientation-warning{
   display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 18px;
+  padding: 20px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .rules, .records, .end-game {
@@ -360,13 +367,13 @@ body{
   flex-direction: column;
   width: 80%;
   height: 80vh;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   border: 2px solid white;
   padding: 20px;
 }
 .rules-content, .records-content, .end-content {
-  color: #5c490e;
+  color: #efefee;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   display: flex;
   align-items: center;
@@ -379,7 +386,6 @@ body{
   padding: 10px;
 }
 .rules-container{
-  height: 100vh;
   overflow-y: auto;
 }
 .back, .save-record {
@@ -396,11 +402,9 @@ body{
 .records-list{
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
   gap: 10px;
-  width: 30%;
-  min-width: 150px;
 }
 .records-container{
   justify-content: center;
@@ -415,10 +419,14 @@ body{
   width: 100%;
 }
 
-.pos, .name{
+.pos, .name, .res{
   display: flex;
   flex: 1;
+  justify-content: flex-start;
 }
+/* .name{
+  flex:1
+} */
 .end-game {
   display: none;
   opacity: 1;
@@ -427,7 +435,7 @@ body{
 }
 
 .end-container {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.3);
   transition: 1s all;
   display: flex;
   align-items: center;
@@ -525,19 +533,20 @@ body{
 
 @media (max-width: 950px) and (max-height: 500px) {
   .logo-container {
-    width: 30vw;
+    width: 25vw;
   }
   .menu-btn-container {
-    width: 33vw;
+    width: 30vw;
   }
   .menu-btn {
     width: 50%;
     padding: 8px;
+    margin: 5px;
   }
   .left-navigation, .right-navigation {
     flex: 0.25;
     height: auto;
-    max-width: 80px;
+    max-width: 125px;
     padding: 2px;
     gap: 0px;
   }
@@ -548,6 +557,9 @@ body{
   }
   .field {
     max-width: 49vw;
+  }
+  .container{
+    width: 90%;
   }
 }
 
