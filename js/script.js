@@ -319,17 +319,7 @@ function togglePause() {
 }
 
 function pauseGame() {
-  if (innerWidth < 500 && window.innerHeight > window.innerWidth) {
-    warningOrientation.style.display = 'flex';
-    gameContainer.style.display = 'none';
-    startMenu.style.display = 'none';
-    window.addEventListener('resize', resumeGame);
-  } else {
-    warningOrientation.style.display = 'none';
-    gameContainer.style.display = 'flex';
-    startMenu.style.display = 'none';
-    
-  }
+  
   isPaused = true;
   pause.style.backgroundColor = '#da7509'
   pause.innerHTML = 'играть'
@@ -1275,8 +1265,19 @@ function launchGame() {
 
 
 
-function gameTimer() {
-  window.addEventListener('resize', pauseGame);
+function gameTimer() { 
+  if (innerWidth < 500 && window.innerHeight > window.innerWidth) {
+    warningOrientation.style.display = 'flex';
+    gameContainer.style.display = 'none';
+    startMenu.style.display = 'none';
+    pauseGame()
+    window.addEventListener('resize', resumeGame);
+  } else {
+    warningOrientation.style.display = 'none';
+    gameContainer.style.display = 'flex';
+    startMenu.style.display = 'none';
+    
+  }
   elapsedTime += 1 / 60;
   const carsImg = 4;
   cars.forEach(car => {
