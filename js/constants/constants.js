@@ -4,6 +4,8 @@ const constants = {
   stringName: "BOLBOTUNOV_TRAFFICLANES_TEST",
   sizeFieldH: 600,
   sizeFieldW: 700,
+  SVG_CONTAINER_SEL: ".mainSVG",
+  greenColor: "#98FB98",
 };
 
 export default constants;
