@@ -1,123 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="icon" type="image/png" sizes="32x32" href="#">
-    <link rel="stylesheet" href="styles/style.css">
-    <link rel="stylesheet" href="styles/normalize.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/TL.png" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/normalize.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <title>Traffic lanes</title>
-</head>
-<body>
-  <div class="start-menu">
-    <div class="start-menu-container">
-      <div class="logo-container">
-        <img src="assets/logo.png" alt="logo" class="logo">
-      </div>
+  </head>
+  <body>
+    <div class="start-menu">
+      <div class="start-menu-container">
+        <div class="logo-container">
+          <img src="assets/logo.png" alt="logo" class="logo" />
+        </div>
 
         <div class="menu-btn-container">
           <div class="menu-btn start-btn">начать игру</div>
           <div class="menu-btn records-btn">рекорды</div>
           <div class="menu-btn rules-btn">правила</div>
         </div>
-
-    </div>
-  </div>
-  <div class="container">
-    <div class="left-navigation">
-      <div class="menu-timer">
-        00:00
       </div>
-      <button class="game-btn back-to-menu">в меню</button>
-      <button class="game-btn pause">пауза</button>
     </div>
-    
+    <div class="container">
+      <div class="left-navigation">
+        <div class="menu-timer">00:00</div>
+        <button class="game-btn back-to-menu">в меню</button>
+        <button class="game-btn pause">пауза</button>
+      </div>
+
       <div class="field">
         <div class="layout"></div>
       </div>
 
       <div class="right-navigation">
         <div class="lives">
-          <img src="assets/lifeRemain.png" id = 'third-life' alt = "lives">
-          <img src="assets/lifeRemain.png" id = 'second-life' alt="lives">
-          <img src="assets/lifeRemain.png" id = 'first-life' alt="lives">
+          <img src="assets/lifeRemain.png" id="third-life" alt="lives" />
+          <img src="assets/lifeRemain.png" id="second-life" alt="lives" />
+          <img src="assets/lifeRemain.png" id="first-life" alt="lives" />
         </div>
         <div class="evacuator-block">
-          <img src="assets/evacuator.png" alt="evacuator" class="evacuator-block-image">
-          <svg class='arrow moveArrow' width="15" height="15" viewBox="0 0 43 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21.5 30L0.282379 0.75L42.7176 0.75L21.5 30Z" fill="red"/>
+          <img
+            src="assets/evacuator.png"
+            alt="evacuator"
+            class="evacuator-block-image"
+          />
+          <svg
+            class="arrow moveArrow"
+            width="15"
+            height="15"
+            viewBox="0 0 43 30"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M21.5 30L0.282379 0.75L42.7176 0.75L21.5 30Z" fill="red" />
           </svg>
           <div class="backTimer"><span></span></div>
         </div>
         <button class="game-btn evacuate-btn">убрать ДТП</button>
       </div>
-  </div>
+    </div>
 
-  <div class="orientation-warning">
-     Пожалуйста, поверните экран в ландшафтную ориентацию для лучшего просмотра.
-  </div>
-  <div class="rules">
-    <div class="rules-container">
-      <div class="rules-content">
-        <ul>
-          <li><b>Суть игры:</b> регулирование движения остановкой машин нажатием светофоров на игровом поле или на панелях навигации</li>
-          <li><b>Управление:</b> нажатие мышкой на светофоры у перекрестка либо на панели навигации слева и справа: круги 1,2,3,4. нажатие пальцем на смартфоне/планшете, либо переключение режима светофора клавишами 1,2,3,4 регулирующие соответствующие светофоры. Включение красного света на всех светофорах - пробел   </li>
-          <li><b>Очистка ДТП:</b> Все светофоры загораются красным, когда автомобили столкнулись на перекрестке, после этого нужно или мышью, или пальцем на смартфоне/планшете перенести эвакуатор (находится справа сверху в навигации) на перекресток, до появления мигающей стрелки, указывающий на "сброс" эвакуатора вниз. Далее нужно нажать на кнопку "убрать ДТП" в правой панели навигации и очистить ДТП. Эвакуатор вернется в исходной положение, а регулирование светофорами продолжится в обычном режиме</li>
-          <li><b>Количество жизней:</b> Количество попыток очистки мест дтп указано в правой навигации (3 раза) и уменьшается каждый раз по мере нажатия клавишы "очистить ДТП"</li>
-          <li><b>Сохранение рекорда:</b> После проигрыша будет показано меню с сохранением Вашего  результата, если он попадает в топ-5 лучших, то он отобразится в таблице рекордов</li>
-        </ul>
-      </div>
-         <button class="back menu-btn">назад</button>
+    <div class="orientation-warning">
+      Пожалуйста, поверните экран в ландшафтную ориентацию для лучшего
+      просмотра.
     </div>
- </div>
- <div class="end-game">
-  <div class="end-container">
-    <div class="end-title">Конец игры</div>
-    <div class="end-result">
-      <div class="end-score">Ваше время: </div>
-      <input type="text" class="end-name" placeholder="Введите ваше имя">
-      <button class="save-record menu-btn">ок</button>
-    </div>
-       
-  </div>
-</div>
- <div class="records">
-  <div class="records-container">
-    <div class="records-title">Таблица рекордов</div>
-    <div class="records-list">
-      <div class="records-number" id="first-place">
-        <div class="pos">1</div>
-        <div class="name">--</div>
-        <div class="res">--</div>
-      </div>
-      <div class="records-number" id="second-place">
-        <div class="pos">2</div>
-        <div class="name">--</div>
-        <div class="res">--</div>
-      </div>
-      <div class="records-number" id="third-place">
-        <div class="pos">3</div>
-        <div class="name">--</div>
-        <div class="res">--</div>
-      </div>
-      <div class="records-number" id="fourth-place">
-        <div class="pos">4</div>
-        <div class="name">--</div>
-        <div class="res">--</div>
-      </div>
-      <div class="records-number" id="fifth-place">
-        <div class="pos">5</div>
-        <div class="name">--</div>
-        <div class="res">--</div>
+    <div class="rules">
+      <div class="rules-container">
+        <div class="rules-content">
+          <ul>
+            <li>
+              <b>Суть игры:</b> регулирование движения остановкой машин нажатием
+              светофоров на игровом поле или на панелях навигации
+            </li>
+            <li>
+              <b>Управление:</b> нажатие мышкой на светофоры у перекрестка либо
+              на панели навигации слева и справа: круги 1,2,3,4. нажатие пальцем
+              на смартфоне/планшете, либо переключение режима светофора
+              клавишами 1,2,3,4 регулирующие соответствующие светофоры.
+              Включение красного света на всех светофорах - пробел
+            </li>
+            <li>
+              <b>Очистка ДТП:</b> Все светофоры загораются красным, когда
+              автомобили столкнулись на перекрестке, после этого нужно или
+              мышью, или пальцем на смартфоне/планшете перенести эвакуатор
+              (находится справа сверху в навигации) на перекресток, до появления
+              мигающей стрелки, указывающий на "сброс" эвакуатора вниз. Далее
+              нужно нажать на кнопку "убрать ДТП" в правой панели навигации и
+              очистить ДТП. Эвакуатор вернется в исходной положение, а
+              регулирование светофорами продолжится в обычном режиме
+            </li>
+            <li>
+              <b>Количество жизней:</b> Количество попыток очистки мест дтп
+              указано в правой навигации (3 раза) и уменьшается каждый раз по
+              мере нажатия клавишы "очистить ДТП"
+            </li>
+            <li>
+              <b>Сохранение рекорда:</b> После проигрыша будет показано меню с
+              сохранением Вашего результата, если он попадает в топ-5 лучших, то
+              он отобразится в таблице рекордов
+            </li>
+          </ul>
+        </div>
+        <button class="back menu-btn">назад</button>
       </div>
     </div>
-       <button class="back menu-btn">назад</button>
-  </div>
-</div>
-
-    <script src="js/script.js"></script>
-</body>
+    <div class="end-game">
+      <div class="end-container">
+        <div class="end-title">Конец игры</div>
+        <div class="end-result">
+          <div class="end-score">Ваше время:</div>
+          <input type="text" class="end-name" placeholder="Введите ваше имя" />
+          <button class="save-record menu-btn">ок</button>
+        </div>
+      </div>
+    </div>
+    <div class="records">
+      <div class="records-container">
+        <div class="records-title">Таблица рекордов</div>
+        <div class="records-list">
+          <div class="records-number" id="first-place">
+            <div class="pos">1</div>
+            <div class="name">--</div>
+            <div class="res">--</div>
+          </div>
+          <div class="records-number" id="second-place">
+            <div class="pos">2</div>
+            <div class="name">--</div>
+            <div class="res">--</div>
+          </div>
+          <div class="records-number" id="third-place">
+            <div class="pos">3</div>
+            <div class="name">--</div>
+            <div class="res">--</div>
+          </div>
+          <div class="records-number" id="fourth-place">
+            <div class="pos">4</div>
+            <div class="name">--</div>
+            <div class="res">--</div>
+          </div>
+          <div class="records-number" id="fifth-place">
+            <div class="pos">5</div>
+            <div class="name">--</div>
+            <div class="res">--</div>
+          </div>
+        </div>
+        <button class="back menu-btn">назад</button>
+      </div>
+    </div>
+    <script type="module" src="./js/script.js"></script>
+  </body>
 </html>
-
