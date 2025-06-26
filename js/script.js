@@ -8,8 +8,19 @@ import Auto from "./classes/Auto.js";
 import gameStore from "./store/gameStore.js";
 import TrafficLights from "./classes/TrafficLights.js";
 import { createMap, createFieldSVG, gameField } from "./map/createMap.js";
-import { houses1, houses2, houses3 } from "./lib/definitions.js";
-const { stringName, greenColor } = constants;
+import {
+  houses1,
+  houses2,
+  houses3,
+  backgroundTraffic,
+  tapSound,
+  evacuatorSound,
+  soundType,
+  gameSoundFn,
+} from "./lib/definitions.js";
+import getRandomNum from "./utils/getRandomNum.js";
+const { stringName, greenColor, numberBirdTracks, numberMainTracks } =
+  constants;
 let {
   trafficLightsState,
   arrFogs,
@@ -17,6 +28,12 @@ let {
   trafficLightsArray,
   cars,
   pathsLengths,
+  elapsedTime,
+  checkTime,
+  isVibrating,
+  canMove,
+  backgroundMusic,
+  isAudioPlayed,
 } = gameStore;
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -290,7 +307,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let timer = document.querySelector(".menu-timer");
   let warningOrientation = document.querySelector(".orientation-warning");
   let lives = document.querySelectorAll(".lives img");
-  let isVibrating = false;
   let start;
   let pause;
   let isPaused = false;
@@ -329,36 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ============ ЗВУКИ ===============
-  let isAudioPlayed;
   let birdsSound;
-  let backgroundMusic;
-  const backgroundTraffic = new Audio("assets/traffic.mp3");
-  const tapSound = new Audio("assets/tap.wav");
-  const crushSound = new Audio(`assets/crushSound.mp3`);
-  const beepSound = new Audio("assets/beepSound.mp3");
-  const evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
-
-  function gameSoundFn() {
-    let randomSound = Math.floor(Math.random() * 4) + 1;
-    backgroundMusic = new Audio(`assets/mainTrack${randomSound}.mp3`);
-    backgroundMusic.currentTime = 0;
-    backgroundMusic.play();
-    backgroundMusic.loop = true;
-  }
-
-  function crushSoundFn() {
-    if (isAudioPlayed) {
-      return;
-    } else {
-      crushSound.currentTime = 0;
-      crushSound.volume = 0.5;
-      crushSound.play();
-      isAudioPlayed = true;
-      beepSound.volume = 0.5;
-      beepSound.play();
-      beepSound.currentTime = 0;
-    }
-  }
 
   let allBtns = document.querySelectorAll(".menu-btn");
   allBtns.forEach((btns) =>
@@ -367,14 +354,6 @@ document.addEventListener("DOMContentLoaded", function () {
       tapSound.play();
     })
   );
-
-  function birdsSoundFn() {
-    let randomSound = Math.floor(Math.random() * 2) + 1;
-    birdsSound = new Audio(`assets/birds${randomSound}.mp3`);
-    birdsSound.currentTime = 0;
-    birdsSound.play();
-    birdsSound.volume = 0.4;
-  }
 
   function evacuatorSoundFn() {
     evacuatorSound.currentTime = 0;
@@ -464,8 +443,6 @@ document.addEventListener("DOMContentLoaded", function () {
       carElement.remove();
     });
 
-    elapsedTime = 0;
-    checkTime = 0;
     timer.innerHTML = "00:00";
     gameInterval = false;
     countEvacuate = 0;
@@ -544,59 +521,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ================Машинки=================================
 
-  let elapsedTime = 0;
-  let checkTime = 0;
   let checkSoundTime = 0;
   let gameInterval;
   let loadEvacuator = false;
 
-  function vibrating(vibro) {
-    if ("vibrate" in navigator) {
-      if (vibro) {
-        navigator.vibrate(400);
-      }
-    }
-  }
-
   // ======проверка столкновений=============
-
-  let relativeLeft1;
-  let relativeRight1;
-  let relativeTop1;
-  let relativeBottom1;
-
-  let relativeLeft2;
-  let relativeRight2;
-  let relativeTop2;
-  let relativeBottom2;
-
-  function checkCollision(car1, car2) {
-    let rect1 = car1.autoElement.getBoundingClientRect();
-    let rect2 = car2.autoElement.getBoundingClientRect();
-
-    relativeLeft1 = (rect1.left / window.innerWidth) * 100;
-    relativeRight1 = (rect1.right / window.innerWidth) * 100;
-    relativeTop1 = (rect1.top / window.innerHeight) * 100;
-    relativeBottom1 = (rect1.bottom / window.innerHeight) * 100;
-
-    relativeLeft2 = (rect2.left / window.innerWidth) * 100;
-    relativeRight2 = (rect2.right / window.innerWidth) * 100;
-    relativeTop2 = (rect2.top / window.innerHeight) * 100;
-    relativeBottom2 = (rect2.bottom / window.innerHeight) * 100;
-
-    const margin = 0.8;
-
-    return (
-      ((relativeLeft1 > 35 && relativeLeft1 < 65) ||
-        (relativeLeft2 > 35 && relativeLeft2 < 65)) &&
-      ((relativeTop1 > 35 && relativeTop1 < 65) ||
-        (relativeTop2 > 35 && relativeTop2 < 65)) &&
-      relativeLeft1 + margin < relativeRight2 &&
-      relativeRight1 - margin > relativeLeft2 &&
-      relativeTop1 + margin < relativeBottom2 &&
-      relativeBottom1 - margin > relativeTop2
-    );
-  }
 
   // ===================Светофор==================================
 
@@ -660,7 +589,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   let whereTurns;
-  let canMove = false;
   // ======================== DRAG EVACUATOR ===============================
 
   let evacuatorCarImage = document.querySelector(".evacuator-block");
@@ -789,7 +717,7 @@ document.addEventListener("DOMContentLoaded", function () {
       warningOrientation.style.display = "none";
       gameContainer.style.display = "flex";
       startMenu.style.display = "none";
-      gameSoundFn();
+      gameSoundFn(soundType.mainTrack, getRandomNum(numberMainTracks));
       backgroundTraffic.play();
       backgroundTraffic.loop = true;
       backgroundTraffic.volume = 0.4;
@@ -864,7 +792,7 @@ document.addEventListener("DOMContentLoaded", function () {
     showTime(elapsedTime);
 
     if (elapsedTime - checkSoundTime > 20) {
-      birdsSoundFn();
+      gameSoundFn(soundType.birds, getRandomNum(numberBirdTracks));
       checkSoundTime = elapsedTime;
     }
 

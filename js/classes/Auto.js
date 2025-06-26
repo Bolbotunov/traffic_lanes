@@ -1,8 +1,30 @@
 import constants from "../constants/constants.js";
 const { SVG_NS, SVG_CONTAINER_SEL } = constants;
 import gameStore from "../store/gameStore.js";
-const { trafficLightsArray, cars, pathsLengths } = gameStore;
+let {
+  trafficLightsArray,
+  cars,
+  pathsLengths,
+  elapsedTime,
+  isVibrating,
+  canMove,
+} = gameStore;
+import { checkCollision } from "../utils/checkCollision.js";
+import { crushSound, beepSound } from "../lib/definitions.js";
 
+function crushSoundFn() {
+  if (isAudioPlayed) {
+    return;
+  } else {
+    crushSound.currentTime = 0;
+    crushSound.volume = 0.5;
+    crushSound.play();
+    isAudioPlayed = true;
+    beepSound.volume = 0.5;
+    beepSound.play();
+    beepSound.currentTime = 0;
+  }
+}
 export default class Auto {
   constructor(route, typeCar, speed, IsTurns, crash, addClass) {
     this.fieldSVG = document.querySelector(SVG_CONTAINER_SEL);
@@ -130,6 +152,14 @@ export default class Auto {
         }
       }
     });
+
+    function vibrating(vibro) {
+      if ("vibrate" in navigator) {
+        if (vibro) {
+          navigator.vibrate(400);
+        }
+      }
+    }
 
     cars.forEach((otherCar) => {
       if (otherCar !== this && checkCollision(this, otherCar)) {

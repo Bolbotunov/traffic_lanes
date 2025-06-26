@@ -6,6 +6,8 @@ const constants = {
   sizeFieldW: 700,
   SVG_CONTAINER_SEL: ".mainSVG",
   greenColor: "#98FB98",
+  numberMainTracks: 4,
+  numberBirdTracks: 2,
 };
 
 export default constants;
