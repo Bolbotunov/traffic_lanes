@@ -12,13 +12,11 @@ import {
   houses1,
   houses2,
   houses3,
-  backgroundTraffic,
-  tapSound,
-  evacuatorSound,
   soundType,
   gameSoundFn,
 } from "./lib/definitions.js";
 import getRandomNum from "./utils/getRandomNum.js";
+import audioController from "./utils/audioController.js";
 const { stringName, greenColor, numberBirdTracks, numberMainTracks } =
   constants;
 let {
@@ -32,8 +30,10 @@ let {
   checkTime,
   isVibrating,
   canMove,
-  backgroundMusic,
   isAudioPlayed,
+  isPaused,
+  loadEvacuator,
+  lostLife,
 } = gameStore;
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -309,7 +309,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let lives = document.querySelectorAll(".lives img");
   let start;
   let pause;
-  let isPaused = false;
   let back;
   let backToMenu;
   let resultGame;
@@ -345,20 +344,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ============ ЗВУКИ ===============
-  let birdsSound;
 
   let allBtns = document.querySelectorAll(".menu-btn");
   allBtns.forEach((btns) =>
     btns.addEventListener("click", function tapSoundFn() {
-      tapSound.currentTime = 0;
-      tapSound.play();
+      audioController.play("tapSound");
     })
   );
-
-  function evacuatorSoundFn() {
-    evacuatorSound.currentTime = 0;
-    evacuatorSound.play();
-  }
 
   // ============= Навигация в приложении ===========================
 
@@ -383,7 +375,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function endGame() {
-    backgroundTraffic.loop = false;
     startMenu.style.display = "none";
     warningOrientation.style.display = "none";
     rules.style.display = "none";
@@ -418,16 +409,15 @@ document.addEventListener("DOMContentLoaded", function () {
     isPaused = true;
     pause.style.backgroundColor = "#da7509";
     pause.innerHTML = "играть";
-    backgroundTraffic.pause();
-    backgroundMusic.pause();
+    audioController.pauseAll();
     fieldSVG.style.pointerEvents = "none";
     clearInterval(gameInterval);
   }
 
   function resumeGame() {
     isPaused = false;
-    backgroundTraffic.play();
-    backgroundMusic.play();
+    audioController.play("backgroundTraffic");
+    audioController.play("backgroundMusic");
     pause.innerHTML = "пауза";
     pause.style.backgroundColor = "#daf2b5";
     gameInterval = setInterval(gameTimer, 1000 / 60);
@@ -435,8 +425,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function resetGame() {
     isPaused = false;
     pause.innerHTML = "пауза";
-    backgroundTraffic.pause();
-    backgroundMusic.pause();
+    audioController.resetAll();
     clearInterval(gameInterval);
     const carElements = document.querySelectorAll(".allCars");
     carElements.forEach((carElement) => {
@@ -519,11 +508,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ================Машинки=================================
-
   let checkSoundTime = 0;
   let gameInterval;
-  let loadEvacuator = false;
 
   // ======проверка столкновений=============
 
@@ -601,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let relativeY;
   function handleStart(e) {
     e.preventDefault();
-    if (!canMove) {
+    if (!gameStore.canMove) {
       evacuatorCarImage.style.cursor = "pointer";
       return;
     }
@@ -680,9 +666,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function evacuateCars() {
     countEvacuate += 1;
     isVibrating = false;
-    backgroundTraffic.volume = 0.3;
-    backgroundTraffic.play();
-    evacuatorSoundFn();
+    audioController.play("evacuatorSound");
     backTimer.style.display = "flex";
     backTimerFill.style.animation = "fillTimer 2500ms forwards";
     backTimerFill.classList.add = "fill-timer";
@@ -694,7 +678,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (countEvacuate === 3) {
       pauseGame();
       endGame();
-      backgroundTraffic.loop = false;
     }
     setTimeout(resetPosition, 2500);
   }
@@ -718,9 +701,7 @@ document.addEventListener("DOMContentLoaded", function () {
       gameContainer.style.display = "flex";
       startMenu.style.display = "none";
       gameSoundFn(soundType.mainTrack, getRandomNum(numberMainTracks));
-      backgroundTraffic.play();
-      backgroundTraffic.loop = true;
-      backgroundTraffic.volume = 0.4;
+      audioController.play("backgroundTraffic");
       gameInterval = setInterval(gameTimer, 1000 / 60);
       checkTime = 0;
     }

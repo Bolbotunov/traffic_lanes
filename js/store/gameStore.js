@@ -15,8 +15,10 @@ const gameStore = {
   checkTime: 0,
   isVibrating: false,
   canMove: false,
-  backgroundMusic: null,
   isAudioPlayed: null,
+  isPaused: false,
+  loadEvacuator: false,
+  lostLife: null,
 };
 
 export default gameStore;

@@ -3,26 +3,22 @@ const { SVG_NS, SVG_CONTAINER_SEL } = constants;
 import gameStore from "../store/gameStore.js";
 let {
   trafficLightsArray,
-  cars,
   pathsLengths,
   elapsedTime,
   isVibrating,
   canMove,
+  isAudioPlayed,
 } = gameStore;
 import { checkCollision } from "../utils/checkCollision.js";
-import { crushSound, beepSound } from "../lib/definitions.js";
+import audioController from "../utils/audioController.js";
 
 function crushSoundFn() {
-  if (isAudioPlayed) {
+  if (gameStore.isAudioPlayed) {
     return;
   } else {
-    crushSound.currentTime = 0;
-    crushSound.volume = 0.5;
-    crushSound.play();
-    isAudioPlayed = true;
-    beepSound.volume = 0.5;
-    beepSound.play();
-    beepSound.currentTime = 0;
+    audioController.play("crushSound");
+    gameStore.isAudioPlayed = true;
+    audioController.play("beepSound");
   }
 }
 export default class Auto {
@@ -129,7 +125,7 @@ export default class Auto {
         }
       }
 
-      let carsOnSameRoute = cars.filter((car) => {
+      let carsOnSameRoute = gameStore.cars.filter((car) => {
         return trafficLightsArray.some(
           (tl) =>
             tl.routesControl.includes(car.route) &&
@@ -161,13 +157,13 @@ export default class Auto {
       }
     }
 
-    cars.forEach((otherCar) => {
+    gameStore.cars.forEach((otherCar) => {
       if (otherCar !== this && checkCollision(this, otherCar)) {
         if (!isVibrating) {
           vibrating(true);
           isVibrating = true;
         }
-        canMove = true;
+        gameStore.canMove = true;
         this.crash = true;
         otherCar.crash = true;
         this.speed = 0;
@@ -198,7 +194,7 @@ export default class Auto {
 
     if (this.position >= pathInfo.length) {
       this.autoElement.remove();
-      cars = cars.filter((car) => car !== this);
+      gameStore.cars = gameStore.cars.filter((car) => car !== this);
     }
   }
   checkStopTime(waitingTime) {
