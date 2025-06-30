@@ -343,16 +343,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // ============ ЗВУКИ ===============
-
   let allBtns = document.querySelectorAll(".menu-btn");
   allBtns.forEach((btns) =>
     btns.addEventListener("click", function tapSoundFn() {
       audioController.play("tapSound");
     })
   );
-
-  // ============= Навигация в приложении ===========================
 
   function showMenu() {
     startMenu.style.display = "flex";
@@ -512,11 +508,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let checkSoundTime = 0;
   let gameInterval;
-
-  // ======проверка столкновений=============
-
-  // ===================Светофор==================================
-
   function createDivTrafficLight(id, className, text) {
     let divTrafficLight = document.createElement("div");
     divTrafficLight.id = id;
@@ -577,10 +568,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   let whereTurns;
-  // ======================== DRAG EVACUATOR ===============================
-
   let evacuatorCarImage = document.querySelector(".evacuator-block");
-
   let startX,
     startY,
     initialX = 0,
