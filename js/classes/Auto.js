@@ -16,8 +16,8 @@ function crushSoundFn() {
   if (gameStore.isAudioPlayed) {
     return;
   } else {
-    audioController.play("crushSound");
     gameStore.isAudioPlayed = true;
+    audioController.play("crushSound");
     audioController.play("beepSound");
   }
 }
