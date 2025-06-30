@@ -343,16 +343,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // ============ ЗВУКИ ===============
-
   let allBtns = document.querySelectorAll(".menu-btn");
   allBtns.forEach((btns) =>
     btns.addEventListener("click", function tapSoundFn() {
       audioController.play("tapSound");
     })
   );
-
-  // ============= Навигация в приложении ===========================
 
   function showMenu() {
     startMenu.style.display = "flex";
@@ -382,6 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
     records.style.display = "none";
     endMenu.style.display = "flex";
     endScore.innerHTML = `ваше время: ${resultGame}`;
+    audioController.resetAll();
     history.pushState({ page: "endGame" }, "endGame", "#endGame");
   }
 
@@ -398,7 +395,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function togglePause() {
-    if (isPaused) {
+    if (gameStore.isPaused) {
       resumeGame();
     } else {
       pauseGame();
@@ -406,16 +403,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function pauseGame() {
-    isPaused = true;
+    gameStore.isPaused = true;
     pause.style.backgroundColor = "#da7509";
     pause.innerHTML = "играть";
-    audioController.pauseAll();
+    audioController.pause("backgroundTraffic");
+    audioController.pause("backgroundMusic");
     fieldSVG.style.pointerEvents = "none";
     clearInterval(gameInterval);
   }
 
   function resumeGame() {
-    isPaused = false;
+    gameStore.isPaused = false;
     audioController.play("backgroundTraffic");
     audioController.play("backgroundMusic");
     pause.innerHTML = "пауза";
@@ -423,7 +421,7 @@ document.addEventListener("DOMContentLoaded", function () {
     gameInterval = setInterval(gameTimer, 1000 / 60);
   }
   function resetGame() {
-    isPaused = false;
+    gameStore.isPaused = false;
     pause.innerHTML = "пауза";
     audioController.resetAll();
     clearInterval(gameInterval);
@@ -510,11 +508,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let checkSoundTime = 0;
   let gameInterval;
-
-  // ======проверка столкновений=============
-
-  // ===================Светофор==================================
-
   function createDivTrafficLight(id, className, text) {
     let divTrafficLight = document.createElement("div");
     divTrafficLight.id = id;
@@ -575,10 +568,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   let whereTurns;
-  // ======================== DRAG EVACUATOR ===============================
-
   let evacuatorCarImage = document.querySelector(".evacuator-block");
-
   let startX,
     startY,
     initialX = 0,
@@ -633,7 +623,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (arrow.style.display !== "none") {
         arrow.style.display = "none";
         evacuatorCarImage.style.cursor = "grab";
-        loadEvacuator = true;
+        gameStore.loadEvacuator = true;
       }
       document.removeEventListener("mousemove", moveFn);
       document.removeEventListener("mouseup", handleEndFn);
@@ -649,16 +639,16 @@ document.addEventListener("DOMContentLoaded", function () {
     initialX = 0;
     initialY = 0;
     canMove = false;
-    loadEvacuator = false;
+    gameStore.loadEvacuator = false;
     evacuatorCarImage.style.transform = `translate(${initialX}px, ${initialY}px)`;
     backTimer.style.display = "none";
-    isAudioPlayed = false;
-    cars.forEach((car) => {
+    gameStore.isAudioPlayed = false;
+    gameStore.cars.forEach((car) => {
       if (car.crash) {
         car.autoElement.remove();
       }
     });
-    cars = cars.filter((car) => car.crash !== true);
+    gameStore.cars = gameStore.cars.filter((car) => car.crash !== true);
   }
 
   let countEvacuate = 0;
@@ -702,6 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
       startMenu.style.display = "none";
       gameSoundFn(soundType.mainTrack, getRandomNum(numberMainTracks));
       audioController.play("backgroundTraffic");
+      audioController.play("mainTrack");
       gameInterval = setInterval(gameTimer, 1000 / 60);
       checkTime = 0;
     }
@@ -721,11 +712,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     elapsedTime += 1 / 60;
     const carsImg = 4;
-    cars.forEach((car) => {
+    gameStore.cars.forEach((car) => {
       car.move();
     });
 
-    if (loadEvacuator) {
+    if (gameStore.loadEvacuator) {
       evacuateBtn.disabled = false;
       evacuateBtn.addEventListener("click", evacuateCars);
     } else {
@@ -774,6 +765,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (elapsedTime - checkSoundTime > 20) {
       gameSoundFn(soundType.birds, getRandomNum(numberBirdTracks));
+      audioController.play("birdsSound");
       checkSoundTime = elapsedTime;
     }
 
@@ -798,7 +790,7 @@ document.addEventListener("DOMContentLoaded", function () {
         12: toRight,
       };
       whereTurns = turnDirection[randomRoute];
-      if (cars.length > 60) {
+      if (gameStore.cars.length > 60) {
         return;
       } else {
         let newAuto = new Auto(
@@ -809,7 +801,7 @@ document.addEventListener("DOMContentLoaded", function () {
           false,
           "allCars"
         ).createAuto();
-        cars.push(newAuto);
+        gameStore.cars.push(newAuto);
       }
 
       checkTime = elapsedTime;
