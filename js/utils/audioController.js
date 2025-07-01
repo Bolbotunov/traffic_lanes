@@ -1,8 +1,8 @@
-export const crushSound = new Audio("assets/crushSound.mp3");
-export const beepSound = new Audio("assets/beepSound.mp3");
-export const backgroundTraffic = new Audio("assets/traffic.mp3");
-export const tapSound = new Audio("assets/tap.wav");
-export const evacuatorSound = new Audio(`assets/evacuatorSound.mp3`);
+export const crushSound = new Audio("../assets/crushSound.mp3");
+export const beepSound = new Audio("../assets/beepSound.mp3");
+export const backgroundTraffic = new Audio("../assets/traffic.mp3");
+export const tapSound = new Audio("../assets/tap.wav");
+export const evacuatorSound = new Audio(`../assets/evacuatorSound.mp3`);
 
 const audioController = {
   sounds: {
