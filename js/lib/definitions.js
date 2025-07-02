@@ -29,6 +29,6 @@ export const soundType = {
 };
 
 export function gameSoundFn(type, num) {
-  const path = `../assets/${soundType[type]}${num}.mp3`;
+  const path = `assets/${soundType[type]}${num}.mp3`;
   audioController.updateMusic(path, type);
 }
